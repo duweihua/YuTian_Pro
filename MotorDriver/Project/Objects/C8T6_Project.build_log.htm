@@ -1,0 +1,133 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.14.0.0
+Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: dashdsa jdakslhda, sajdklasj, LIC=Y2BZ9-4NGQE-ZDWK6-D5S1G-4WUZX-EH2UN
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Professional  Version: 5.14.0.0
+Toolchain Path:  D:\MDK5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.05 update 1 (build 106)
+Assembler:       Armasm.exe V5.05 update 1 (build 106)
+Linker/Locator:  ArmLink.exe V5.05 update 1 (build 106)
+Library Manager: ArmAr.exe V5.05 update 1 (build 106)
+Hex Converter:   FromElf.exe V5.05 update 1 (build 106)
+CPU DLL:         SARMCM3.DLL V5.14.0.0
+Dialog DLL:      DCM.DLL V1.13.1.0
+Target DLL:      Segger\JL2CM3.dll V2.99.13.0
+Dialog DLL:      TCM.DLL V1.14.4.0
+ 
+<h2>Project:</h2>
+D:\桌面\电赛\电机驱动\Motor_Driver\Project\STM32F1T8.uvprojx
+Project File Date:  03/16/2019
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling main.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\User\main.c(8): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\User\main.c(10): warning:  #223-D: function "system_init" declared implicitly
+        system_init();
+..\User\main.c(12): warning:  #223-D: function "data_init" declared implicitly
+        data_init();
+..\User\main.c(26): warning:  #223-D: function "ADC_Configuration" declared implicitly
+        ADC_Configuration();
+..\User\main.c(27): warning:  #223-D: function "Tim1_configration" declared implicitly
+        Tim1_configration();
+..\User\main.c(28): error:  #20: identifier "ConfigOK" is undefined
+        ConfigOK = 1;
+..\User\main.c(31): error:  #159: declaration is incompatible with previous "data_init" (declared at line 12)
+  void data_init(void)
+..\User\main.c(34): error:  #20: identifier "dataOK" is undefined
+        dataOK = 1;
+..\User\main.c(57): warning:  #223-D: function "positionPIDCal" declared implicitly
+        positionPIDCal(PWM);
+..\User\main.c: 6 warnings, 4 errors
+compiling adc.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\adc.c(15): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\adc.c(42): error:  #20: identifier "ADC12_Buffer" is undefined
+        dma.DMA_MemoryBaseAddr =(u32)&ADC12_Buffer;     
+..\Hardware\adc.c(58): error:  #20: identifier "ADC3_Buffer" is undefined
+        dma.DMA_MemoryBaseAddr = (u32)&ADC3_Buffer;
+..\Hardware\adc.c(139): error:  #20: identifier "ADC1_data" is undefined
+        ADC1_data = (uint16_t)ADC12_Buffer;
+..\Hardware\adc.c(139): error:  #20: identifier "ADC12_Buffer" is undefined
+        ADC1_data = (uint16_t)ADC12_Buffer;
+..\Hardware\adc.c(140): error:  #20: identifier "ADC2_data" is undefined
+        ADC2_data = (uint16_t)(ADC12_Buffer>>16);
+..\Hardware\adc.c(141): error:  #20: identifier "ADC3_data" is undefined
+        ADC3_data = (uint16_t)ADC3_Buffer;
+..\Hardware\adc.c(141): error:  #20: identifier "ADC3_Buffer" is undefined
+        ADC3_data = (uint16_t)ADC3_Buffer;
+..\Hardware\adc.c: 1 warning, 8 errors
+compiling can.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\can.c(5): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\can.c(74): error:  #247: function "CANSendData" has already been defined
+  void CANSendData(short data1, short data2)
+..\Hardware\can.c: 1 warning, 2 errors
+compiling control.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\control.c(15): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\control.c: 1 warning, 1 error
+compiling delay.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\delay.c(5): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\delay.c: 1 warning, 1 error
+compiling encoder.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\encoder.c(9): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\encoder.c(95): error:  #20: identifier "nowPos" is undefined
+        nowPos += count;
+..\Hardware\encoder.c: 1 warning, 2 errors
+compiling led.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\led.c(5): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\led.c: 1 warning, 1 error
+compiling PID.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\PID.c(5): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\PID.c(8): error:  #20: identifier "P" is undefined
+        Error = P->SetPoint - NextPoint;
+..\Hardware\PID.c(8): error:  #20: identifier "NextPoint" is undefined
+        Error = P->SetPoint - NextPoint;
+..\Hardware\PID.c(25): error:  #118: a void function may not return a value
+        return P->POut+P->IOut+P->DOut;
+..\Hardware\PID.c: 1 warning, 4 errors
+compiling pwm.c...
+..\Hardware\adc.h(4): error:  #130: expected a "{"
+  void ADC_Configuration(void);
+..\Hardware\pwm.c(10): warning:  #12-D: parsing restarts here after previous syntax error
+  {
+..\Hardware\pwm.c: 1 warning, 1 error
+".\Objects\C8T6_Project.axf" - 24 Error(s), 14 Warning(s).
+
+<h2>Collection of Component include folders:</h2>
+  D:\桌面\电赛\电机驱动\Motor_Driver\Project\RTE
+  D:\MDK5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+Target not created.
+</pre>
+</body>
+</html>
