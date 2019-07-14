@@ -85,7 +85,7 @@ uint8_t move_with_xy_target(float pos_x_target,float pos_y_target,SDK_Status *St
      &&Status->Status[number].Execute_Flag==1
        &&Status->Status[number].End_flag==1)
   {
-     OpticalFlow_Control_Pure(0);//完成之后，进行光流悬停
+     OpticalFlow_Control_Pure(0);//完成之后进行光流悬停
      return 1;
   }
   else
@@ -144,7 +144,7 @@ uint8_t move_with_target(float pos_x_target,float pos_y_target,Duty_Status *Stat
      &&Status->Execute_Flag==1
        &&Status->End_flag==1)
   {
-     OpticalFlow_Control_Pure(0);//完成之后，进行光流悬停
+     OpticalFlow_Control_Pure(0);//完成之后进行光流悬停
      return 1;
   }
   else
@@ -156,7 +156,7 @@ uint8_t move_with_target(float pos_x_target,float pos_y_target,Duty_Status *Stat
       Status->Execute_Flag=1;
       Status->End_flag=1;
 
-      OpticalFlow_Control_Pure(1);//完成之后，进行光流悬停
+      OpticalFlow_Control_Pure(1);//完成之后进行光流悬停
 			
       OpticalFlow_Pos_Ctrl_Expect.x=0;
       OpticalFlow_Pos_Ctrl_Expect.y=0;
@@ -271,6 +271,7 @@ uint8_t move_with_z_target(float z_target,float z_vel,float delta,SDK_Status *St
   return 0;
 }
 
+
 extern uint8_t Auto_Relock_Flag_Set;
 //第一步：无怠速解锁操作
 uint8_t Duty1(SDK_Status *Status,uint16_t number)
@@ -301,6 +302,7 @@ uint8_t Duty1(SDK_Status *Status,uint16_t number)
 	
 	Page_Number=0;//OLED恢复首页
 	
+	//清除传感器校准标志位
 	Reset_Mag_Calibartion(1);
 	Reset_Accel_Calibartion(1);
 	Reset_RC_Calibartion(1);
@@ -506,7 +508,7 @@ uint8_t NCQ_SDK_Circle(void)
 unsigned char sdk_data_to_send[50];
 void SDK_DT_Send_Data(unsigned char *dataToSend , unsigned char length)
 {
-  USART3_Send(sdk_data_to_send, length);
+  USART3_Send(sdk_data_to_send,length);
 }
 
 
