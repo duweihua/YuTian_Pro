@@ -66,14 +66,8 @@ void RC_Scale_Set(Vector_RC *rc_date)
   RC_Deadzone_Top=RC_Middle+RC_Deadband/2;
 }
 
-/***********************************************************
-@函数名：Remote_Control
-@入口参数：无
-@出口参数：无
-功能描述：遥控器数据转换
-@作者：无名小哥
-@日期：2019年01月27日
-*************************************************************/
+
+//遥控器数据转换
 void Remote_Control(void )
 {
 	if(PPM_Safety_Flag==1)
@@ -189,8 +183,6 @@ void Remote_Control(void )
 				Auto_ReLock_Cnt=200*6;//持续6S
 				Auto_Relock_Flag_Set=0;
 			}
-			
-			
 			
 			if(Controler_State==Unlock_Controler
 				 &&Auto_Relock_Flag_Set==0//自动上锁位未设置

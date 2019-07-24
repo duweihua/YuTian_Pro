@@ -6,6 +6,8 @@
 #define OpticalFlow_Speed_Control_Max  250
 
 
+void SDK_Pos_Ctrl_Reset(void);
+
 void OpticalFlow_Control_Pure(uint8_t force_brake_flag);
 void OpticalFlow_Control(uint8_t force_brake_flag);
 void OpticalFlow_SINS_Reset(void);

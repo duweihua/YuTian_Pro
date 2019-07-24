@@ -5,13 +5,14 @@
 //SDK本模式需要在光流模式下使用
 
 
-//
 bool auto_altland(float taret_climb_rate,float target_climb_alt)
 {
   return land_althold(taret_climb_rate,target_climb_alt);
 }
 
 
+uint8_t Finish_Point_Begin=0;
+uint8_t Trust_Finish_Point=0;
 uint8_t move_with_speed_target(float x_target,float y_target,float delta,SDK_Status *Status,uint16_t number)
 {
   static float end_time=0;
@@ -23,6 +24,13 @@ uint8_t move_with_speed_target(float x_target,float y_target,float delta,SDK_Sta
 	
   ncq_control_althold();//高度控制依然进行
   
+	static char time;
+
+	time = (dt.Now_Time/100);
+			
+	printf("任务二进行时间：&d",time);
+
+
 	if(Status->Status[number].Start_Flag==1
      &&Status->Status[number].Execute_Flag==1
        &&Status->Status[number].End_flag==1)
@@ -30,16 +38,43 @@ uint8_t move_with_speed_target(float x_target,float y_target,float delta,SDK_Sta
       OpticalFlow_Control_Pure(0);//完成之后进行光流悬停
       return 1;
   }
-  
+	
 	else
   {
-    if(Status->Status[number].Start_Flag==0) 
+    if(Status->Status[number].Start_Flag==0)
     {
       end_time=dt.Now_Time+delta;//单位ms 
       Status->Status[number].Start_Flag=1;
     }
 		
-    if(dt.Now_Time>end_time)
+		if(dt.Now_Time>(end_time-2200))//该任务执行5s之后
+		{
+			printf("计时结束！ 可以开始检测终点了！");
+			printf("计时结束！ 可以开始检测终点了！");
+			printf("计时结束！ 可以开始检测终点了！");
+			printf("计时结束！ 可以开始检测终点了！");
+
+			Finish_Point_Begin = 1;//开始识别终点
+		}
+		
+		if(Trust_Finish_Point==1)	//确信检测到终点 则当前任务结束
+		{
+			Status->Status[number].Execute_Flag=1;
+      Status->Status[number].End_flag=1;
+			
+      OpticalFlow_Control_Pure(1);//完成之后进行光流悬停
+      
+			OpticalFlow_Pos_Ctrl_Expect.x=0;
+      OpticalFlow_Pos_Ctrl_Expect.y=0;
+			
+      end_time=0;
+      
+			//Status->Transition_Time[number]=400;//过渡时间400*5ms=2s
+      
+			return 1;//返回完成
+		}
+		
+    if(dt.Now_Time>end_time)//时间溢出 则当前任务异常结束
     {
       Status->Status[number].Execute_Flag=1;
       Status->Status[number].End_flag=1;
@@ -51,12 +86,12 @@ uint8_t move_with_speed_target(float x_target,float y_target,float delta,SDK_Sta
 			
       end_time=0;
       
-			Status->Transition_Time[number]=400;//过渡时间？400*5ms=2s
+//			Status->Transition_Time[number]=400;//过渡时间400*5ms=2s
       
 			return 1;//返回完成
     }
-    else
-    { 
+    else	//当前任务未结束
+    {
       OpticalFlow_Pos_Ctrl_Expect.x=0;
       OpticalFlow_Pos_Ctrl_Expect.y=0;
 			
@@ -67,6 +102,70 @@ uint8_t move_with_speed_target(float x_target,float y_target,float delta,SDK_Sta
       return 0;
     }
   }
+}
+
+
+Point SDK_Real_Point;
+uint16_t Point_Finish_Cnt=0;
+uint8_t Mine_SDK_OpenMV_Flag=0;
+uint8_t Is_Around_Finish_Point(SDK_Status *Status,uint16_t number)
+{
+  ncq_control_althold();//高度控制依然进行
+	
+	Mine_SDK_OpenMV_Flag=1;
+	
+  if(Status->Status[number].Start_Flag==0) 
+  {
+		SDK_Point.flag=0;
+	  SDK_Line.flag=0;
+		SDK_Line.line_ctrl_enable=0;
+		
+		Mine_SDK_OpenMV_Flag=1;
+    
+		Status->Status[number].Start_Flag=1;
+  }
+  if(Status->Status[number].Start_Flag==1
+     &&Status->Status[number].Execute_Flag==1
+       &&Status->Status[number].End_flag==1)
+  {
+		Mine_SDK_OpenMV_Flag =0;
+    OpticalFlow_Control_Pure(0);//完成之后进行光流悬停
+    return 1;
+  }
+				
+	if(pythagorous2(SDK_Real_Point.x-80,SDK_Real_Point.y-60)<=30.0f)
+	{
+		Point_Finish_Cnt++;	//确保稳定在终点圆附近一段时间再结束
+	}
+	else Point_Finish_Cnt=0;	//一旦偏离终点圆 计数清零
+			
+	if(Point_Finish_Cnt>=200)//持续悬停在终点圆上长达一秒 认为可以降落
+	{
+		Status->Status[number].Execute_Flag=1;
+		Status->Status[number].End_flag=1;	//标志结束
+		
+		//目标：原地
+		OpticalFlow_Pos_Ctrl_Expect.x=0;
+		OpticalFlow_Pos_Ctrl_Expect.y=0;
+	
+		Status->Transition_Time[number]=100;//0.5s
+	
+		OpticalFlow_Control_Pure(0);	//完成之后进行光流悬停
+				
+		return 1;
+	}
+	else	//已经确定终点 但未足够靠近 
+	{
+		Status->Status[number].Execute_Flag=1; 
+		
+		//光流速度位置双环控制
+//		OpticalFlow_Pos_Control();
+//		OpticalFlow_Vel_Control(OpticalFlow_Pos_Ctrl_Output);
+		
+		OpticalFlow_Control(0);
+		
+		return 0;
+	}
 }
 
 
@@ -124,7 +223,7 @@ uint8_t move_with_xy_target(float pos_x_target,float pos_y_target,SDK_Status *St
 
 //此函数专用于定点巡航模式下的水平移动
 //特点：有一个标志位数组 用于判断条件依次执行各个任务 从而完成巡航任务
-//			没有Transition_Time			
+//			没有Transition_Time
 uint8_t move_with_target(float pos_x_target,float pos_y_target,Duty_Status *Status,uint8_t *Start_flag)
 {
   ncq_control_althold();//高度控制依然进行
@@ -176,6 +275,7 @@ uint8_t move_with_target(float pos_x_target,float pos_y_target,Duty_Status *Stat
 }
 
 
+uint8_t Transition_Time_Set_Flag=0;
 uint8_t move_with_z_target(float z_target,float z_vel,float delta,SDK_Status *Status,uint16_t number)
 {
   static float target_rate=0;
@@ -184,6 +284,8 @@ uint8_t move_with_z_target(float z_target,float z_vel,float delta,SDK_Status *St
   static float end_time=0;
   Testime dt;
   Test_Period(&dt);
+	
+	Transition_Time_Set_Flag=0;//清除怠速延时标志位
 	
   OpticalFlow_Control_Pure(0);//水平位置控制依然进行
   
@@ -196,7 +298,7 @@ uint8_t move_with_z_target(float z_target,float z_vel,float delta,SDK_Status *St
   }
   else
   {
-      if(Status->Status[number].Start_Flag==0) 
+      if(Status->Status[number].Start_Flag==0)
       {
 				//速度模式(一次任务中只设置一次)
         if(z_target==0)
@@ -252,13 +354,14 @@ uint8_t move_with_z_target(float z_target,float z_vel,float delta,SDK_Status *St
         end_flag=0;
         target_rate=0;
         target_alt=0;
-        //z_base=0;
+
         end_time=0;
+				
         Status->Status[number].Execute_Flag=1;
         Status->Status[number].End_flag=1;
         Status->Transition_Time[number]=200;
 				
-				OpticalFlow_Control_Pure(1);//完成之后，进行光流悬停
+				OpticalFlow_Control_Pure(1);//完成之后进行光流悬停
 				OpticalFlow_Pos_Ctrl_Expect.x=0;
 				OpticalFlow_Pos_Ctrl_Expect.y=0;
 				
@@ -277,18 +380,19 @@ extern uint8_t Auto_Relock_Flag_Set;
 uint8_t Duty1(SDK_Status *Status,uint16_t number)
 {
 	Controler_State=Unlock_Controler;
-	
-	if(Controler_High_Mode==2)//如果是在定高模式下解锁 
-	{  
-		Unwanted_Lock_Flag=1;   //屏蔽自动上锁
 		
-#if (YAW_Pos_Control_Accel_Disable==1)	//三环定高模式
-			Total_Controller.High_Speed_Control.Integrate=-Total_Controller.High_Speed_Control.Integrate_Max;
-#else	//双环定高模式
-			Total_Controller.High_Acce_Control.Integrate=-Total_Controller.High_Acce_Control.Integrate_Max;
+	if(Controler_High_Mode==2)//如果是在定高模式下解锁 
+	{
+		Unwanted_Lock_Flag=1;   //不需要自动进入上锁模式
+		
+#if (YAW_Pos_Control_Accel_Disable==1)//高度双环
+		Total_Controller.High_Speed_Control.Integrate=-Total_Controller.High_Speed_Control.Integrate_Max;
+#else	//高度三环
+		Total_Controller.High_Acce_Control.Integrate=-Total_Controller.High_Acce_Control.Integrate_Max;
 #endif
 	}
-	else Unwanted_Lock_Flag=0;	//允许自动上锁
+				
+	else Unwanted_Lock_Flag=0;
 	
 	Lock_Makesure_Cnt=0;
 	Unlock_Makesure_Cnt=0;
@@ -311,100 +415,54 @@ uint8_t Duty1(SDK_Status *Status,uint16_t number)
 	Auto_Relock_Flag_Set=0;//关闭自动上锁
 	
 	Take_Off_Reset();//清积分
-		
+	
+	//SDK位置控制数据复位
+	SDK_Pos_Ctrl_Reset();
+	//光流控制数据复位
+	OpticalFlow_Ctrl_Reset();
+	//光流惯导数据复位	
+	OpticalFlow_SINS_Reset();
+
 	Status->Status[number].Start_Flag=1;
 	Status->Status[number].End_flag=1;
 	Status->Status[number].Execute_Flag=1;
 	
-	Status->Transition_Time[number]=200;//1s
+	//加解锁过渡时间导致起飞不稳定
+	//为了过度时间只设置一次
+//	if(Transition_Time_Set_Flag==0)
+//	{
+//		Status->Transition_Time[number]=600;//3s
+//		
+//		Transition_Time_Set_Flag = 1;
+//	}
 	
 	return 1;
 }
 
 
-extern Point SDK_Real_Point;
-uint8_t Mine_SDK_OpenMV_Flag=0;
-uint8_t Finish_Point_Flag=0;
-uint16_t Judge_Time=0;
-uint8_t Mine_SDK_OpenMV_Duty(SDK_Status *Status,uint16_t number)
-{
-	//清空点模式、线模式数据 防止干扰自定义模式
-//	SDK_Line_DT_Reset();
-//	SDK_Point_DT_Reset();
-
-  ncq_control_althold();//高度控制依然进行
-	
-	Judge_Time++;//计时用来判断起点终点
-	if(Judge_Time>=2000)	//10s之后
-	{
-		Finish_Point_Flag = 1;//认为确信的真实点是终点
-		Judge_Time = 2000;
-	}
-	else Finish_Point_Flag =0;
-
-	if(Status->Status[number].Start_Flag==0) 
-  {
-		Mine_SDK_OpenMV_Flag=1;	//切换光流控制模式
-    Status->Status[number].Start_Flag=1;	//标志任务开始
-  }
-  
-  if(Status->Status[number].Start_Flag==1
-     &&Status->Status[number].Execute_Flag==1
-       &&Status->Status[number].End_flag==1)
-  {
-		Mine_SDK_OpenMV_Flag=0;//清除标志位 恢复正常光流控制
-    OpticalFlow_Control_Pure(0);//完成之后进行光流悬停
-    return 1;
-  }
-	else	//未结束
-  {    
-		//定位精度
-//    if(pythagorous2(OpticalFlow_Pos_Ctrl_Expect.x-OpticalFlow_SINS.Position[_PITCH],
-//                    OpticalFlow_Pos_Ctrl_Expect.y-OpticalFlow_SINS.Position[_ROLL])<=10.0f)
-		if(pythagorous2(SDK_Real_Point.x-80,SDK_Real_Point.y-60)<=30.0f)
-    {
-      Status->Status[number].Execute_Flag=1;
-      Status->Status[number].End_flag=1;	//标志结束
-
-      OpticalFlow_Pos_Ctrl_Expect.x=0;
-      OpticalFlow_Pos_Ctrl_Expect.y=0;
-			
-      Status->Transition_Time[number]=100;//0.5s
-      
-			OpticalFlow_Control_Pure(1);	//完成之后进行光流悬停
-      
-			OpticalFlow_Pos_Ctrl_Expect.x=0;
-      OpticalFlow_Pos_Ctrl_Expect.y=0;
-			
-      return 1;
-    }
-    else
-    {
-      Status->Status[number].Execute_Flag=1; 
-			
-			//光流速度位置双环控制
-      OpticalFlow_Pos_Control();
-      OpticalFlow_Vel_Control(OpticalFlow_Pos_Ctrl_Output);
-      return 0;
-    }
-  }
-}
 
 
-//#define NCQ_SDK_DUTY1 move_with_speed_target(10,0,2000 ,&SDK_Duty_Status,1-1)//左
-//#define NCQ_SDK_DUTY2 move_with_speed_target(0,10,2000 ,&SDK_Duty_Status,2-1)//前
-//#define NCQ_SDK_DUTY3 move_with_speed_target(-10,0,2000,&SDK_Duty_Status,3-1)//右
-//#define NCQ_SDK_DUTY4 move_with_speed_target(0,-10,2000,&SDK_Duty_Status,4-1)//后
+//2013国赛题目SDK任务定义
+//#define NCQ_SDK_DUTY_MAX   4
+//#define NCQ_SDK_DUTY1 Duty1(&SDK_Duty_Status,1-1)
+//#define NCQ_SDK_DUTY2 move_with_z_target(100,0,0,&SDK_Duty_Status,2-1)
+//#define NCQ_SDK_DUTY3 Mine_SDK_OpenMV_Duty(&SDK_Duty_Status,3-1)
+//#define NCQ_SDK_DUTY4 move_with_z_target(-120,0,0,&SDK_Duty_Status,4-1)
 
 
-#define NCQ_SDK_DUTY_MAX   4
+#define NCQ_SDK_DUTY_MAX   5
 #define NCQ_SDK_DUTY1 Duty1(&SDK_Duty_Status,1-1)
-#define NCQ_SDK_DUTY2 move_with_z_target(50,0,0,&SDK_Duty_Status,2-1)
-#define NCQ_SDK_DUTY3 Mine_SDK_OpenMV_Duty(&SDK_Duty_Status,3-1)
-#define NCQ_SDK_DUTY4 move_with_z_target(-80,0,0,&SDK_Duty_Status,4-1)
+#define NCQ_SDK_DUTY2 move_with_z_target(70,0,0,&SDK_Duty_Status,2-1)
+#define NCQ_SDK_DUTY3 move_with_speed_target(0,10,3000,&SDK_Duty_Status,3-1)//10cm/s for 30s
+#define NCQ_SDK_DUTY4 Is_Around_Finish_Point(&SDK_Duty_Status,4-1)
+#define NCQ_SDK_DUTY5 move_with_z_target(-90,0,0,&SDK_Duty_Status,5-1)
 
-//#define NCQ_SDK_DUTY3 move_with_xy_target(0,200,&SDK_Duty_Status,3-1)
-//#define NCQ_SDK_DUTY4 move_with_z_target(-80,0,0,&SDK_Duty_Status,4-1)
+
+//SDK起飞稳定性测试任务定义
+//#define NCQ_SDK_DUTY_MAX   3
+//#define NCQ_SDK_DUTY1 Duty1(&SDK_Duty_Status,1-1)
+//#define NCQ_SDK_DUTY2 move_with_z_target(80,0,0,&SDK_Duty_Status,2-1)
+//#define NCQ_SDK_DUTY3 move_with_z_target(-110,0,0,&SDK_Duty_Status,3-1)
 
 
 SDK_Status SDK_Duty_Status;
@@ -423,12 +481,12 @@ void NCQ_SDK_Run(void)
     
 	//避免任务越界
   if(SDK_Duty_Cnt>=NCQ_SDK_DUTY_MAX) SDK_Duty_Cnt=NCQ_SDK_DUTY_MAX;
-  
-  if(SDK_Duty_Cnt==0)        NCQ_SDK_DUTY1;
-  else if(SDK_Duty_Cnt==1)   NCQ_SDK_DUTY2;
-  else if(SDK_Duty_Cnt==2)   NCQ_SDK_DUTY3;
-  else if(SDK_Duty_Cnt==3)   NCQ_SDK_DUTY4;
-  //else if(SDK_Duty_Cnt==4)   NCQ_SDK_DUTY5;
+	
+  if(SDK_Duty_Cnt==0)       NCQ_SDK_DUTY1;
+  else if(SDK_Duty_Cnt==1)  NCQ_SDK_DUTY2;	
+  else if(SDK_Duty_Cnt==2)	NCQ_SDK_DUTY3;
+  else if(SDK_Duty_Cnt==3)  NCQ_SDK_DUTY4;
+  else if(SDK_Duty_Cnt==4)  NCQ_SDK_DUTY5;
   //else if(SDK_Duty_Cnt==5)   NCQ_SDK_DUTY6;
   //else if(SDK_Duty_Cnt==6)   NCQ_SDK_DUTY7;
   else
@@ -527,6 +585,7 @@ void SDK_DT_Send_Check(unsigned char mode)
   SDK_DT_Send_Data(sdk_data_to_send, 7);
 }
 
+
 uint8_t SDK_Now_Mode=0x00;
 uint8_t SDK_Mode_Set=0x02;
 #define SDK_TARGET_X_OFFSET  0
@@ -565,11 +624,7 @@ void SDK_Point_DT_Reset()
 
 
 void Openmv_Data_Receive_Anl(u8 *data_buf,u8 num)
-{
-  //u8 sum = 0;
-  //for(u8 i=0;i<(num-1);i++)  sum += *(data_buf+i);
-  //if(!(sum==*(data_buf+num-1)))	return;	                //不满足和校验条件	
-	
+{	
   if(!(*(data_buf)==0xAA && *(data_buf+1)==0xAF))	return;	//不满足帧头条件	
 	
   if(*(data_buf+2)==0XC0)//色块检测
@@ -664,20 +719,13 @@ void Openmv_Data_Receive_Anl(u8 *data_buf,u8 num)
 }
 
 
-//
-Point Maybe_SDK_Point1,Maybe_SDK_Point2;
 Point SDK_Real_Point;
-//真实点检测到标志位
-uint8_t SDK_RealPoint_Flag=0;
-//确信真实点标志位
-uint8_t Trust_RealPoint_flag=0;
+Point SDK_Real_Point_Last;
+//真实点连续检测计数
+uint8_t RealPoint_Cnt=0;
 //OpenMV参与的SDK模式(自用)
 void Openmv_Data_Receive_Mine(u8 *data_buf,u8 num)
 {
-	static uint8_t RealPoint_Cnt;//真实点检测计数
-	
-//	SDK_Recieve_Flag=0;
-	
 	//校验数据帧头
 	if(!(*(data_buf)==0xAA && *(data_buf+1)==0xAA))	{SDK_Recieve_Flag=0; return;}
 	
@@ -687,59 +735,67 @@ void Openmv_Data_Receive_Mine(u8 *data_buf,u8 num)
 	SDK_Recieve_Flag=1;	//标志SDK数据接收成功
 	
 	SDK_Now_Mode = 0x03;
-	
-	Maybe_SDK_Point1.x = *(data_buf+2);
-	Maybe_SDK_Point1.y = *(data_buf+3);
-	Maybe_SDK_Point2.y = *(data_buf+4);
-	Maybe_SDK_Point2.y = *(data_buf+5);
+		
+	SDK_Real_Point_Last.x = SDK_Real_Point.x;
+	SDK_Real_Point_Last.y = SDK_Real_Point.y;
 	
 	SDK_Real_Point.x = *(data_buf+6);
 	SDK_Real_Point.y = *(data_buf+7);
 	
-	//真实点坐标越界 或 通过时间判断不可能到达终点附近 则判定未检测到真实点 
-	//这种情况下按照直线上的虚拟点行进
-	if(SDK_Real_Point.x>160||SDK_Real_Point.y>120||Finish_Point_Flag==0)
+//	printf("%d",SDK_Real_Point.x-80);
+//	printf("          ");
+//	printf("%d",60-SDK_Real_Point.y);
+//	printf("\r\n");
+	
+	printf("当前惯导距离：%f \r\n",OpticalFlow_SINS.Position[_PITCH]);
+	
+	//本次真实点虚拟点都没有检测到
+	if(SDK_Real_Point.x>160)
 	{
+		//真实点检测计数清零
+		//目的：防止偶然检测到一次终点圆 后面什么都检测不到 导致把当前偏离位置当作终点圆
 		RealPoint_Cnt = 0;
-		Trust_RealPoint_flag = 0;
+		
+		Trust_Finish_Point = 0;//清除确信标志位		
+		
+		//直接返回上一次的数据
+//		SDK_Real_Point.x = SDK_Real_Point_Last.x;
+//		SDK_Real_Point.y = SDK_Real_Point_Last.y;
 	}
-	else	//检测到真实点 开始计数 若确保能持续检测到 则忽略虚拟点 
+	
+	//真实点坐标越界 或 通过时间判断不可能到达终点附近 则判定未检测到真实点 
+	if(SDK_Real_Point.x>160||Finish_Point_Begin==0)//真实点越界 或 未开始真实点检测
+	{
+		RealPoint_Cnt = 0;	//一旦丢失真实点 计数清零
+		Trust_Finish_Point = 0;
+	}
+	else if(SDK_Real_Point.x<160 && Finish_Point_Begin==1)//检测到真实点 开始计数
 	{
 		RealPoint_Cnt++;
 	}
 	
-	if(RealPoint_Cnt>=20)//连续20次检测到真实点 则认为不是噪声
+	if(RealPoint_Cnt>=100)//连续100次检测到真实点 则认为不是噪声
 	{
-		Trust_RealPoint_flag = 1;//确信标志位
-		RealPoint_Cnt = 0;//计时清零 
+		Trust_Finish_Point = 1;//确信检测到终点
+		RealPoint_Cnt = 0;//计时清零
+		printf("我确信检测到终点了！\r\n");
+		printf("我确信检测到终点了！\r\n");
+		printf("我确信检测到终点了！\r\n");
 	}
-		
-	if(Trust_RealPoint_flag==1) //确信检测到真实点
+
+	if(Trust_Finish_Point==1) //确信检测到真实点
 	{
-		//设定真实点为目标点 忽略虚拟点
-		SDK_Target.x=(Pixel_Size*(80-SDK_Real_Point.x)*(-1)*NamelessQuad.Position[_YAW])/Focal_Length
-      +NamelessQuad.Position[_YAW]*tan(Roll* DEG2RAD)-SDK_Target_Offset.x;
-    SDK_Target.y=(Pixel_Size*(60-SDK_Real_Point.y)*NamelessQuad.Position[_YAW])/Focal_Length
-      +NamelessQuad.Position[_YAW]*tan(Pitch* DEG2RAD)-SDK_Target_Offset.y;  
-	}
-	else	//未确信检测到真实点
-	{
-		//选择前方的虚拟点
-		if(Maybe_SDK_Point1.y<=Maybe_SDK_Point2.y)//y坐标小的在前方
+		if(SDK_Real_Point.x<=160)	//本次真实点坐标有效
 		{
-			//设定前方的虚拟点为目标点(Point1)
-			SDK_Target.x=(Pixel_Size*(80-Maybe_SDK_Point1.x)*(-1)*NamelessQuad.Position[_YAW])/Focal_Length
-				+NamelessQuad.Position[_YAW]*tan(Roll* DEG2RAD)-SDK_Target_Offset.x;
-			SDK_Target.y=(Pixel_Size*(60-Maybe_SDK_Point1.y)*NamelessQuad.Position[_YAW])/Focal_Length
-				+NamelessQuad.Position[_YAW]*tan(Pitch* DEG2RAD)-SDK_Target_Offset.y;  
-		}
-		else
-		{
-			//设定前方的虚拟点为目标点(Point2)
-			SDK_Target.x=(Pixel_Size*(80-Maybe_SDK_Point2.x)*(-1)*NamelessQuad.Position[_YAW])/Focal_Length
-				+NamelessQuad.Position[_YAW]*tan(Roll* DEG2RAD)-SDK_Target_Offset.x;
-			SDK_Target.y=(Pixel_Size*(60-Maybe_SDK_Point2.y)*NamelessQuad.Position[_YAW])/Focal_Length
-				+NamelessQuad.Position[_YAW]*tan(Pitch* DEG2RAD)-SDK_Target_Offset.y;  
+			//设定真实点为目标点 忽略虚拟点
+	//		SDK_Target.x=(Pixel_Size*(80-SDK_Real_Point.x)*(-1)*NamelessQuad.Position[_YAW])/Focal_Length
+	//      +NamelessQuad.Position[_YAW]*tan(Roll* DEG2RAD)-SDK_Target_Offset.x;
+	//    SDK_Target.y=(Pixel_Size*(60-SDK_Real_Point.y)*NamelessQuad.Position[_YAW])/Focal_Length
+	//      +NamelessQuad.Position[_YAW]*tan(Pitch* DEG2RAD)-SDK_Target_Offset.y;  
+			
+			//未加倾角修正
+			SDK_Target.x=(Pixel_Size*(80-SDK_Real_Point.x)*(-1)*NamelessQuad.Position[_YAW])/Focal_Length;
+			SDK_Target.y=(Pixel_Size*(60-SDK_Real_Point.y)*NamelessQuad.Position[_YAW])/Focal_Length;
 		}
 	}
 }
@@ -750,7 +806,7 @@ u8 RxBuffer_mine[20];
 //SDK数据接收OpenMV函数(自用)
 void SDK_Data_Receive_Prepare_Mine(u8 data)
 {
-  static u8 _data_len = 6,_data_cnt = 0;
+  static u8 _data_len = 0,_data_cnt = 0;
 	
 	//校验帧头
   if(state_mine==0&&data==0xAA)//帧头1
@@ -762,6 +818,8 @@ void SDK_Data_Receive_Prepare_Mine(u8 data)
   {
     state_mine=2;
     RxBuffer_mine[1]=data;
+		_data_cnt = 0;
+		_data_len = 6;
   }
 	
 	//接收有效数据
@@ -777,23 +835,24 @@ void SDK_Data_Receive_Prepare_Mine(u8 data)
   else if(state_mine==3&&data==0x00)//0x00
   {
     state_mine = 4;
-    RxBuffer_mine[2+_data_cnt]=data;
+    RxBuffer_mine[8]=data;
   }
 	else if(state_mine==4&&data==0x00)//0x00
 	{
 		state_mine = 5;
-    RxBuffer_mine[2+_data_cnt+1]=data;
+    RxBuffer_mine[9]=data;
 	}
 	else if(state_mine==5&&data==0x00)//0x00
 	{
 		state_mine = 6;
-    RxBuffer_mine[2+_data_cnt+2]=data;
+    RxBuffer_mine[10]=data;
 	}
 	else if(state_mine==6&&data==0x00)//0x00
 	{
 		state_mine = 7;
-    RxBuffer_mine[2+_data_cnt+3]=data;
-		Openmv_Data_Receive_Mine(RxBuffer_mine,_data_len+6);
+    RxBuffer_mine[11]=data;
+		Openmv_Data_Receive_Mine(RxBuffer_mine,12);
+//		state_mine = 0;
 	}
 
   else state_mine = 0;	
@@ -805,15 +864,10 @@ void SDK_Mine_DT_Reset()
 {
 	SDK_Recieve_Flag = 0;
 	
-	Maybe_SDK_Point1.x = 0;
-	Maybe_SDK_Point1.y = 0;
-	Maybe_SDK_Point2.y = 0;
-	Maybe_SDK_Point2.y = 0;
-	
 	SDK_Real_Point.x = 0;
   SDK_Real_Point.y = 0;
 	
-	Trust_RealPoint_flag = 0;
+	Trust_Finish_Point = 0;
 }
 
 

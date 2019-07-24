@@ -255,6 +255,7 @@ void OpticalFlow_Control(uint8_t force_brake_flag)
           SDK_Ctrl_Cnt=0;
         }
 				
+				//保持定点
         OpticalFlow_Pos_Ctrl_Expect.x=0;
         OpticalFlow_Pos_Ctrl_Expect.y=0;
         

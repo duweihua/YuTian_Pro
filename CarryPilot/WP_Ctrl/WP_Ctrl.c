@@ -530,12 +530,12 @@ void Main_Leading_Control(void)
 		//此模式原本为自动返航/自动降落模式
 		//land_run();
 		
-		//PWMGenDisable(PWM0_BASE, PWM_GEN_0);
-		//PWMGenDisable(PWM0_BASE, PWM_GEN_1);
-		//PWMGenDisable(PWM0_BASE, PWM_GEN_2);
-		//PWMGenDisable(PWM0_BASE, PWM_GEN_3);
+		PWMGenDisable(PWM0_BASE, PWM_GEN_0);
+		PWMGenDisable(PWM0_BASE, PWM_GEN_1);
+		PWMGenDisable(PWM0_BASE, PWM_GEN_2);
+		PWMGenDisable(PWM0_BASE, PWM_GEN_3);
 		
-		PWM_Output(Thr_Min,Thr_Min,Thr_Min,Thr_Min,Thr_Min,Thr_Min,0,0);
+//		PWM_Output(Thr_Min,Thr_Min,Thr_Min,Thr_Min,Thr_Min,Thr_Min,0,0);
   }
 }
 
@@ -845,6 +845,7 @@ void Control_Output()
 	
 	//输出增益？
   PWM_Output(1.25*Motor_PWM_1,1.25*Motor_PWM_2,1.25*Motor_PWM_3,1.25*Motor_PWM_4,1.25*Motor_PWM_5,1.25*Motor_PWM_6,0,0);
+//  PWM_Output(1000,1000,1000,1000,1.25*Motor_PWM_5,1.25*Motor_PWM_6,0,0);
 }
 
 

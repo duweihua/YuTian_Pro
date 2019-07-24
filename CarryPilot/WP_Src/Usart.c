@@ -179,6 +179,56 @@ void ConfigureUART1(void)//串口1初始化
 }
 
 
+#if 1
+#pragma import(__use_no_semihosting)             
+//标准库需要的支持函数                 
+struct __FILE 
+{ 
+	int handle; 
+}; 
+
+FILE __stdout;       
+//定义_sys_exit()以避免使用半主机模式    
+void _sys_exit(int x) 
+{ 
+	x = x; 
+} 
+//重定义fputc函数 
+int fputc(int ch, FILE *f)
+{
+  USART1_Send((u8 *)&ch,1);
+}
+
+#endif
+
+//-------------------------------------------------------------------//
+//2019/7/17下午
+//用户Fyra-BH自行添加
+//用于串口调试
+
+u8 lora_rx_buf[20];
+
+
+
+/*-------------------------------------------*/
+//串口数据接收函数
+//@para   uint8_t dat,接收到的数据
+//@return 无
+void Usart_DebuggerGetOneByte(uint8_t dat)
+{
+   static u8 sta=0;//用于记录接收状态
+	 static u8 data_index=0;// 
+  	if(dat==0xaa)
+		{
+		  if(data_index==0)
+				{
+				  
+				}
+			else
+				data_index=0;
+		}
+}
+
 /***********************************************************
 @函数名：UART2_IRQHandler
 @入口参数：无
@@ -1031,12 +1081,17 @@ void ANO_SEND_StateMachine(void)//各组数据循环发送
 @作者：无名小哥
 @日期：2019年01月27日
 *************************************************************/
-extern Point Maybe_SDK_Point1,Maybe_SDK_Point2;
 extern Point SDK_Real_Point;
 extern u8 RxBuffer_mine[20];
+float Point_x = 0;
+float Point_y = 0;
 void Vcan_Send(void)//山外地面站发送
 {
   static float DataBuf[8];	
+	
+	Point_x = (float)SDK_Real_Point.x;
+	Point_y = (float)SDK_Real_Point.y;
+
 /*
 	DataBuf[0]=Pitch;//惯导高度
   DataBuf[1]=Roll;//惯导速度
@@ -1066,24 +1121,32 @@ void Vcan_Send(void)//山外地面站发送
 //  DataBuf[6]=Total_Controller.Roll_Angle_Control.FeedBack;
 //  DataBuf[7]=Total_Controller.Roll_Gyro_Control.FeedBack;
 
-	DataBuf[0]=RxBuffer_mine[0];
-  DataBuf[1]=RxBuffer_mine[1];
-  DataBuf[2]=RxBuffer_mine[2];
-  DataBuf[3]=RxBuffer_mine[3];
-	DataBuf[4]=RxBuffer_mine[4];
-  DataBuf[5]=RxBuffer_mine[5];
-  DataBuf[6]=RxBuffer_mine[6];
-  DataBuf[7]=RxBuffer_mine[7];
+//	DataBuf[0]=RxBuffer_mine[0];
+//  DataBuf[1]=RxBuffer_mine[1];
+//  DataBuf[2]=RxBuffer_mine[2];
+//  DataBuf[3]=RxBuffer_mine[3];
+//	DataBuf[4]=RxBuffer_mine[4];
+//  DataBuf[5]=RxBuffer_mine[5];
+//  DataBuf[6]=RxBuffer_mine[6];
+//  DataBuf[7]=RxBuffer_mine[7];
 
-//	DataBuf[0]=Maybe_SDK_Point1.x;
-//  DataBuf[1]=Maybe_SDK_Point1.y;
-//  DataBuf[2]=Maybe_SDK_Point2.y;
-//  DataBuf[3]=Maybe_SDK_Point2.y;
-//	DataBuf[4]=SDK_Real_Point.x;
-//  DataBuf[5]=SDK_Real_Point.y;
-//  DataBuf[6]=0;
-//  DataBuf[7]=0;
-	
+	DataBuf[0]=0;
+  DataBuf[1]=0;
+  DataBuf[2]=0;
+  DataBuf[3]=0;
+	DataBuf[4]=0;
+  DataBuf[5]=0;
+  DataBuf[6]=0;
+  DataBuf[7]=0;
+
+//		DataBuf[0]=
+//		DataBuf[1]=
+//		DataBuf[2]=
+//		DataBuf[3]=
+//		DataBuf[4]=
+//		DataBuf[5]=
+//		DataBuf[6]=
+//	  DataBuf[7]=
 	/*
   
   DataBuf[0]=GPS_Vel_Div.E;//惯导高度
