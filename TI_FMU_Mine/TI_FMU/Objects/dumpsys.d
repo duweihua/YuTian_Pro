@@ -1,0 +1,12 @@
+.\objects\dumpsys.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\tools\cli\dumpsys.c
+.\objects\dumpsys.o: D:\MDK\ARM\ARMCC\Bin\..\include\string.h
+.\objects\dumpsys.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\dumpsys.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\osal\aos\include\aos/aos.h
+.\objects\dumpsys.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\osal\aos\include\aos/types.h
+.\objects\dumpsys.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\dumpsys.o: D:\MDK\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\dumpsys.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\unistd.h
+.\objects\dumpsys.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\sys/unistd.h
+.\objects\dumpsys.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\fcntl.h
+.\objects\dumpsys.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\sys/fcntl.h
+.\objects\dumpsys.o: .\RTE\_ZKHD_MSP432_FMU\RTE_Components.h

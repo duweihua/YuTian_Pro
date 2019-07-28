@@ -1,0 +1,12 @@
+.\objects\vfs_file.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\kernel\fs\vfs\vfs_file.c
+.\objects\vfs_file.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\kernel\fs\vfs\include\vfs_conf.h
+.\objects\vfs_file.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\kernel\fs\vfs\include\vfs_err.h
+.\objects\vfs_file.o: D:\MDK\ARM\ARMCC\Bin\..\include\errno.h
+.\objects\vfs_file.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\kernel\fs\vfs\include\vfs_inode.h
+.\objects\vfs_file.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\vfs_file.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\vfs_file.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\sys/stat.h
+.\objects\vfs_file.o: D:\MDK\ARM\ARMCC\Bin\..\include\time.h
+.\objects\vfs_file.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\kernel\rhino\core\include\k_api.h
+.\objects\vfs_file.o: D:\MDK\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\vfs_file.o: D:\MDK\ARM\ARMCC\Bin\..\include\string.h

@@ -1,0 +1,25 @@
+Dependencies for Project 'TI_MSP', Target 'XDS': (DO NOT MODIFY !)
+F (.\Blinky.c)(0x5BFD0DFA)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections-I.\RTE\_XDS-ID:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include-ID:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include-ID:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\3.2.5\Device\Include-D__UVISION_VERSION="523" -D_RTE_ -D__MSP432P401R__-o .\objects\blinky.o --omf_browse .\objects\blinky.crf --depend .\objects\blinky.d)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp.h)(0x57304588)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp432p401r.h)(0x57305618)
+I (D:\software2\MDK\ARM\ARMCC\include\stdint.h)(0x5BE121A8)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp_compatibility.h)(0x570C9944)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp432p401r_classic.h)(0x57304588)
+I (D:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include\core_cm4.h)(0x5898498A)
+I (D:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_compiler.h)(0x5898498A)
+I (D:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_armcc.h)(0x5898498A)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\system_msp432p401r.h)(0x57305618)
+I (D:\software2\MDK\ARM\ARMCC\include\stdbool.h)(0x57F606B8)
+I (D:\software2\MDK\ARM\ARMCC\include\math.h)(0x5BE92C84)
+F (.\Abstract.txt)(0x57781701)()
+F (RTE\Device\MSP432P401R\startup_msp432p401r_uvision.s)(0x573DFA4A)(--cpu Cortex-M4.fp -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_XDS-ID:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include-ID:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include-ID:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\3.2.5\Device\Include--pd "__UVISION_VERSION SETA 523" --pd "_RTE_ SETA 1" --pd "__MSP432P401R__ SETA 1"--list .\listings\startup_msp432p401r_uvision.lst --xref -o .\objects\startup_msp432p401r_uvision.o --depend .\objects\startup_msp432p401r_uvision.d)
+F (RTE\Device\MSP432P401R\system_msp432p401r.c)(0x57773A20)(-c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections-I.\RTE\_XDS-ID:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include-ID:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include-ID:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\3.2.5\Device\Include-D__UVISION_VERSION="523" -D_RTE_ -D__MSP432P401R__-o .\objects\system_msp432p401r.o --omf_browse .\objects\system_msp432p401r.crf --depend .\objects\system_msp432p401r.d)
+I (D:\software2\MDK\ARM\ARMCC\include\stdint.h)(0x5BE121A8)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp.h)(0x57304588)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp432p401r.h)(0x57305618)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp_compatibility.h)(0x570C9944)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\msp432p401r_classic.h)(0x57304588)
+I (D:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include\core_cm4.h)(0x5898498A)
+I (D:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_compiler.h)(0x5898498A)
+I (D:\software2\MDK\ARM\CMSIS\5.0.1\CMSIS\Include\cmsis_armcc.h)(0x5898498A)
+I (D:\software2\MDK\TexasInstruments\MSP432P4xx_DFP\2.2.0\Device\Include\system_msp432p401r.h)(0x57305618)
