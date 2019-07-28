@@ -27,7 +27,7 @@
 ".\objects\pos_ctrl.o"
 ".\objects\program_ctrl.o"
 ".\objects\sdk.o"
-".\objects\task_4.o"
+".\objects\task.o"
 ".\objects\gcs.o"
 ".\objects\ano_dt.o"
 ".\objects\zkhd_link.o"

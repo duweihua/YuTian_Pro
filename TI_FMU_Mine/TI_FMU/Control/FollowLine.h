@@ -15,6 +15,7 @@
 #define MAX_TIMEOUT1        400
 #define MAX_TIMEOUT2        1500
 #define MAX_ALT_ERR         10
+#define Take_off_Time				300
 
 /*
 
@@ -31,8 +32,8 @@ typedef enum
     CmdBack,
     CmdLeft,
     CmdRight,
-    CmdCCW,
-    CmdCW,
+    CmdTurnLeft,		//×ó×ª
+    CmdTurnRight,		//ÓÒ×ª
     CmdEmergencyShutDown,
     CmdSpeeedControl,
     
@@ -80,6 +81,8 @@ typedef enum
     ActionGoRight,
     ActionGoLeft,
     ActionGoBack,
+		ActionTurnLeft,
+		ActionTurnRight,
 
     ActionHoverStopPoint,
     ActionFollowTarget,

@@ -639,9 +639,9 @@
               <FilePath>.\Control\SDK.c</FilePath>
             </File>
             <File>
-              <FileName>Task_4.c</FileName>
+              <FileName>Task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Control\Task_4.c</FilePath>
+              <FilePath>.\Control\Task.c</FilePath>
             </File>
           </Files>
         </Group>

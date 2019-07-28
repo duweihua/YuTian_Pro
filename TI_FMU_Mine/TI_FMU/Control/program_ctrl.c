@@ -87,7 +87,7 @@ void One_Key_Take_off_Land_Ctrl_Task(u8 dT_ms)
         {
             //判断自动起飞降落状态是否为自动切费null
             if(auto_takeoff_land_state == AUTO_TAKE_OFF_NULL)
-            {    
+            {
                 //如果是，则给定自动起飞状态
                 auto_takeoff_land_state = AUTO_TAKE_OFF;
             }                

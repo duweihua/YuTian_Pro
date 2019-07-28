@@ -1,4 +1,7 @@
-# 最近修改日期：2-19/7/27
+#历史修改记录：
+#				2019/7/27
+
+# 最近修改日期：2019/7/28
 
 import sensor, image, time
 import network, usocket, sys
@@ -306,9 +309,9 @@ def RecognitionForm(Blobs,img):
     if TopValid and BottonValid and LeftValid and RightValid:
         #发送十字交点坐标
         (Loaction0,Location1) = CalcCross(BlobLocation[Left][cx],BlobLocation[Left][cy],
-                                          BlobLocation[Right][cx],BlobLocation[Right][cy],
-                                          BlobLocation[Top][cx],BlobLocation[Top][cy],
-                                          BlobLocation[Botton][cx],BlobLocation[Botton][cy])
+                                        BlobLocation[Right][cx],BlobLocation[Right][cy],
+                                        BlobLocation[Top][cx],BlobLocation[Top][cy],
+                                        BlobLocation[Botton][cx],BlobLocation[Botton][cy])
         FormType = 2
 
     # T字型(类型3)：左+右+下+非上
@@ -369,6 +372,25 @@ def RecognitionForm(Blobs,img):
     #返回检测到的图形类型和特征点坐标
     return FormType,Loaction0,Location1
 
+#寻找圆(类型9)
+def Find_Circle(img):
+    X = -1
+    Y = -1
+    FormType = 0
+    
+    for circle_find in img.find_circles(threshold = 2800, x_margin = 10, y_margin = 10, r_margin = 10):
+        img.draw_circle(circle_find.x(),circle_find.y(),circle_find.r(),color = (0,0,0))
+        X = circle_find.x()
+        Y = circle_find.y()
+
+    if X == -1:
+        FormType = 255
+    else:
+        FormType = 9
+    
+    return FormType,X,Y
+
+
 #寻找Apriltag(类型100)
 def Find_Apriltags(img):
     X = -1
@@ -382,7 +404,12 @@ def Find_Apriltags(img):
         #发送Apriltag中点坐标
         X = tag.cx()
         Y = tag.cy()
-        FormType = 100
+        
+        if X == -1:
+            FormType = 100
+        else:
+            FormType = 255
+            
     return FormType,X,Y
 
 #判断是否寻找到Apriltag
@@ -394,56 +421,109 @@ def IS_FindApriTag(img):
 
     return GetApriTag
 
-
-#寻找色块
+#寻找色块(不筛选最大)
+#此函数当前有颜色优先级 红>绿>蓝
+#虽然三个颜色会同时识别 但是发送的类型和坐标数据遵守颜色优先级
 def Find_ColorBlob(img):
+    #初始设置无效数据
     X = -1
     Y = -1
     FormType = 0
 
-    blobs = img.find_blobs(thresholds_color,area_threshold=100)
+    blobs = img.find_blobs(thresholds_color,merge=True)
 
     #如果找到了目标颜色
     if blobs:
-        for blob in blobs:
-            X = blob.cx()
-            Y = blob.cy()
-            color_code = blob[8] #读取颜色代码
+        for blob_find in blobs:
+            #获取色块区域信息
+            color_code = blob_find[8] #读取颜色代码
 
             #添加颜色说明
+            #红色(类型101)
             if color_code == red_color_code:
-                img.draw_string(x,y-10,"red",color = (0xFF,0x00,0x00))
-            elif color_color == green_color_code:
-				img.draw_string(x,y-10,"green",color = (0x00,0xFF,0x00))
-				
-				书签啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
-				
-				
-				
-				
-				
-				
-
-    for tag in img.find_blobs([blue_threshold[0]]):
-        #标记小矩形和小十字
-        img.draw_rectangle(tag.rect())
-        img.draw_cross(tag.cx(), tag.cy())
-        #发送色块中点坐标
-        X = tag.cx()
-        Y = tag.cy()
-        FormType = 101
-
-    for tag in img.find_blobs([red_threshold[0]]):
-        #标记小矩形和小十字
-        img.draw_rectangle(tag.rect())
-        img.draw_cross(tag.cx(), tag.cy())
-        #发送色块中点坐标
-        X = tag.cx()
-        Y = tag.cy()
-        FormType = 102
+                img.draw_rectangle(blob_find.rect(),color = (0xFF,0x00,0x00))
+                img.draw_cross(blob_find.cx(), blob_find.cy(), color = (0xFF,0x00,0x00))
+                X = blob_find.cx()
+                Y = blob_find.cy()
+                FormType = 101
+            #绿色(类型102)
+            elif color_code == green_color_code:
+                img.draw_rectangle(blob_find.rect(),color = (0x00,0xFF,0x00))
+                img.draw_cross(blob_find.cx(), blob_find.cy(), color = (0x00,0xFF,0x00))
+                X = blob_find.cx()
+                Y = blob_find.cy()
+                FormType = 102
+            #蓝色(类型103)
+            elif color_code == blue_color_code:
+                img.draw_rectangle(blob_find.rect(),color = (0x00,0x00,0xFF))
+                img.draw_cross(blob_find.cx(), blob_find.cy(), color = (0x00,0x00,0xFF))
+                X = blob_find.cx()
+                Y = blob_find.cy()
+                FormType = 103
 
     return FormType,X,Y
 
+#比较两个色块大小
+def compareBlob(blob1, blob2):
+    #这里选择了pixels作为指标比对
+    #也可以换用其它指标 例如 blob.area()
+    tmp = blob1.pixels() - blob2.pixels()
+    if tmp == 0:
+        return 0;
+    elif tmp > 0:
+        return 1;
+    else:
+        return -1;
+
+#寻找色块(筛选最大色块)
+#此函数可用于在运行过程中切换目标
+def Find_ColorBlob_Max(img):
+    #初始设置无效数据
+    X = -1
+    Y = -1
+    FormType = 0
+
+    #定义最大色块
+    bigBlob = None
+
+    blobs = img.find_blobs(thresholds_color)
+
+    #如果找到了目标颜色
+    if blobs:
+        bigBlob = blobs[0]
+
+        for blob_find in blobs:
+            #寻找最大色块
+            if compareBlob(bigBlob,blob_find) == -1:
+                bigBlob = blob_find
+            #标记所有色块
+            img.draw_rectangle(blob_find.rect())
+
+        #标记识别到的最大色块(圆+十字)
+        img.draw_circle(bigBlob.cx(),bigBlob.cy(),int( bigBlob.w()/2 ), color = (0, 0, 0))
+        img.draw_cross(bigBlob.cx(),bigBlob.cy())
+
+        #读取颜色代码
+        bigcolor_code = bigBlob[8]
+
+        #区分颜色
+        #红色(类型101)
+        if bigcolor_code == red_color_code:
+            X = bigBlob.cx()
+            Y = bigBlob.cy()
+            FormType = 101
+        #绿色(类型102)
+        elif bigcolor_code == green_color_code:
+            X = bigBlob.cx()
+            Y = bigBlob.cy()
+            FormType = 102
+        #蓝色(类型103)
+        elif bigcolor_code == blue_color_code:
+            X = bigBlob.cx()
+            Y = bigBlob.cy()
+            FormType = 103
+
+    return FormType,X,Y
 
 #数据打包
 def ExceptionVar(var):
@@ -502,13 +582,15 @@ CountDown = 100	#模式选择循环次数
 Find_ApriTag_ENABLE = False
 Find_Line_ENABLE = False
 Find_ColorBlob_ENABLE = False
+Find_Circle_ENABLE = False
 while(True):
     CountDown -= 1
 
     if CountDown <= 0:
         Find_ApriTag_ENABLE = False
         Find_Line_ENABLE = False
-        Find_ColorBlob_ENABLE = True
+        Find_ColorBlob_ENABLE = False
+        Find_Circle_ENABLE = True
 
         if Find_ColorBlob_ENABLE == True:
             sensor.set_pixformat(sensor.RGB565) #彩色图像
@@ -525,41 +607,10 @@ while(True):
         red_led.off()
     pass
 
-
-#while(True):
-#    CountDown -= 1
-#    img = sensor.snapshot()	#截图
-#    (Type,P0,P1) = Find_Apriltags(img) #寻找Apriltag
-#
-#    #如果找到Apriltag 则设置为寻找Apriltag模式
-#    if Type == 100:
-#        Find_ApriTag_ENABLE = True
-#        Find_Line_ENABLE = False
-#        break
-#    #如果没有找到Apriltag 则设置为一般巡线模式
-#    else:
-#        Find_Line_ENABLE = True
-#        Find_ApriTag_ENABLE = False
-#
-#    #倒计时结束 红灯绿灯关闭 结束当前while
-#    if CountDown <= 0:
-#        red_led.off()
-#        green_led.off()
-#        break
-#
-#    #模式选择循环中 红灯绿灯同步闪烁
-#    i+=1
-#    if i % 5 == 0:
-#        green_led.on()
-#        red_led.on()
-#    if i % 10 == 0:
-#        green_led.off()
-#        red_led.off()
-#    pass
-
 #主循环
 while(True):
-    img = sensor.snapshot()	#截图
+    #截图并消除畸变
+    img = sensor.snapshot().lens_corr(1.6)
 
     #普通巡线模式
     if Find_Line_ENABLE:
@@ -580,6 +631,12 @@ while(True):
             #画出所有线
             for ii in All_Line:
                 img.draw_line(ii.line())
+     
+    #寻找圆模式
+    if Find_Circle_ENABLE:
+        #获取圆心坐标
+        (Type,P0,P1) = Find_Circle(img)
+        pass
 
     #寻找Apriltag模式
     if Find_ApriTag_ENABLE:
@@ -589,7 +646,10 @@ while(True):
 
     #寻找色块模式
     if Find_ColorBlob_ENABLE:
+        #普通寻找色块模式
         (Type,P0,P1) = Find_ColorBlob(img)
+        #寻找最大色块模式
+        #(Type,P0,P1) = Find_ColorBlob_Max(img)
         pass
 
     #串口发送(类型+坐标)

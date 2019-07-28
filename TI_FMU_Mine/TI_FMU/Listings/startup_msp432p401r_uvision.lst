@@ -524,12 +524,13 @@ erwork --depend=.\objects\startup_msp432p401r_uvision.d -o.\objects\startup_msp
 ARM Macro Assembler    Page 9 
 
 
-432p401r_uvision.o -ID:\×ÀÃæ\TI_FMU_Mine\TI_FMU\RTE -ID:\MDK5\ARM\PACK\ARM\CMSI
-S\4.2.0\CMSIS\Include -ID:\MDK5\ARM\PACK\TexasInstruments\MSP432P4xx_DFP\3.2.6 
--ID:\MDK5\ARM\PACK\TexasInstruments\MSP432P4xx_DFP\3.2.6\Device\Include --prede
-fine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 514" --predefine="
-_RTE_ SETA 1" --predefine="__MSP432P401R__ SETA 1" --list=.\listings\startup_ms
-p432p401r_uvision.lst RTE\Device\MSP432P401R\startup_msp432p401r_uvision.s
+432p401r_uvision.o -IC:\Users\Lenovo\Documents\GitHub\YuTian_Pro\TI_FMU_Mine\TI
+_FMU\RTE -ID:\MDK5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include -ID:\MDK5\ARM\PACK\Te
+xasInstruments\MSP432P4xx_DFP\3.2.6 -ID:\MDK5\ARM\PACK\TexasInstruments\MSP432P
+4xx_DFP\3.2.6\Device\Include --predefine="__MICROLIB SETA 1" --predefine="__UVI
+SION_VERSION SETA 514" --predefine="_RTE_ SETA 1" --predefine="__MSP432P401R__ 
+SETA 1" --list=.\listings\startup_msp432p401r_uvision.lst RTE\Device\MSP432P401
+R\startup_msp432p401r_uvision.s
 
 
 
