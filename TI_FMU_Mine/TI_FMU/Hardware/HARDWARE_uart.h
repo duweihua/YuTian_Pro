@@ -25,6 +25,12 @@
 
 #define UART_GCS            UART_A1
 
+#define ZKHD_Printf(data)   {   char tmp[100];\
+                                uint8_t length;\
+                                length = sprintf(tmp,data);\
+                                USART_TX(&UsartGroup[UART_A1],(uint8_t*)tmp,length); \
+                            }
+
 typedef struct
 {
     /*接收部分数据变量*/

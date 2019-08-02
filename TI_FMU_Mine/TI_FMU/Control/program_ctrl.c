@@ -213,7 +213,6 @@ void Program_Ctrl_Task(u8 dT_ms)
 												//Ò»¼üÆð·É
                         One_Key_Takeoff();
                     }
-
                 }
                 else if(auto_takeoff_land_state == AUTO_TAKE_OFF_FINISH)
                 {

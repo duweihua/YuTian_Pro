@@ -32,7 +32,7 @@ uint8_t checkdata_to_send,checksum_to_send;
 //移植时，用户应根据自身应用的情况，根据使用的通信方式，实现此函数
 void ANO_DT_Send_Data(uint8_t *dataToSend , uint8_t length)
 {
-    USART_TX(&UsartGroup[UART_GCS], dataToSend, length);
+//    USART_TX(&UsartGroup[UART_GCS], dataToSend, length);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

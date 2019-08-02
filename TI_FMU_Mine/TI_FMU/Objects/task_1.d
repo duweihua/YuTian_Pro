@@ -63,3 +63,4 @@
 .\objects\task_1.o: .\Hardware\timer_drv.h
 .\objects\task_1.o: .\Math\myMath.h
 .\objects\task_1.o: Control\program_ctrl.h
+.\objects\task_1.o: .\Sensor\led.h

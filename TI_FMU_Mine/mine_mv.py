@@ -39,15 +39,17 @@ Line_Min_degree = 0
 Line_Max_degree = 179
 
 #颜色阈值定义
-red_threshold = (40,55,55,75,20,50)     #红色阈值
-green_threshold = (45,65,-50,-30,0,40)  #绿色阈值
-blue_threshold = (50,70,0,25,-55,-30)   #蓝色阈值
+B3_threshold = (40,55,55,75,20,50)   #B3阈值(B3_RGB准确值[156,195,229])
+C1_threshold = (45,65,-50,-30,0,40)  #C1阈值(C1_RGB准确值[251,229,213])
+D2_threshold = (50,70,0,25,-55,-30)  #D2阈值(D2_RGB准确值[191,144,0])
+A2_threshold = (10,20,10,20,10,20)   #A2阈值(A2_RGB准确值[91,155,213])
 #总颜色阈值
-thresholds_color = [red_threshold,green_threshold,blue_threshold]
+thresholds_color = [B3_threshold,C1_threshold,D2_threshold,A2_threshold]
 #颜色代码定义
-red_color_code = 1      #code = 2^0 = 1
-green_color_code = 2    #code = 2^1 = 2
-blue_color_code = 4     #code = 2^2 = 4
+B3_color_code = 1   #code = 2^0 = 1
+C1_color_code = 2   #code = 2^1 = 2
+D2_color_code = 4   #code = 2^2 = 4
+A2_color_code = 8   #code = 2^3 = 8
 
 #寻找所有直线
 def find_all_Line(img):
@@ -377,7 +379,7 @@ def Find_Circle(img):
     X = -1
     Y = -1
     FormType = 0
-    
+
     for circle_find in img.find_circles(threshold = 2800, x_margin = 10, y_margin = 10, r_margin = 10):
         img.draw_circle(circle_find.x(),circle_find.y(),circle_find.r(),color = (0,0,0))
         X = circle_find.x()
@@ -387,7 +389,7 @@ def Find_Circle(img):
         FormType = 255
     else:
         FormType = 9
-    
+
     return FormType,X,Y
 
 
@@ -404,12 +406,12 @@ def Find_Apriltags(img):
         #发送Apriltag中点坐标
         X = tag.cx()
         Y = tag.cy()
-        
+
         if X == -1:
             FormType = 100
         else:
             FormType = 255
-            
+
     return FormType,X,Y
 
 #判断是否寻找到Apriltag
@@ -439,27 +441,37 @@ def Find_ColorBlob(img):
             color_code = blob_find[8] #读取颜色代码
 
             #添加颜色说明
-            #红色(类型101)
-            if color_code == red_color_code:
-                img.draw_rectangle(blob_find.rect(),color = (0xFF,0x00,0x00))
-                img.draw_cross(blob_find.cx(), blob_find.cy(), color = (0xFF,0x00,0x00))
+            #B3类(类型101)
+            if color_code == B3_color_code:
+                img.draw_circle(blob_find.cx(),blob_find.cy(),int(blob_find.w()/2 ),color = (0,0,255))
+                img.draw_cross(blob_find.cx(), blob_find.cy(),color = (0,0,255))
                 X = blob_find.cx()
                 Y = blob_find.cy()
                 FormType = 101
-            #绿色(类型102)
-            elif color_code == green_color_code:
-                img.draw_rectangle(blob_find.rect(),color = (0x00,0xFF,0x00))
-                img.draw_cross(blob_find.cx(), blob_find.cy(), color = (0x00,0xFF,0x00))
+
+            #C1类(类型102)
+            elif color_code == C1_color_code:
+                img.draw_circle(blob_find.cx(),blob_find.cy(),int(blob_find.w()/2 ),color = (255,0,0))
+                img.draw_cross(blob_find.cx(), blob_find.cy(),color = (255,0,0))
                 X = blob_find.cx()
                 Y = blob_find.cy()
                 FormType = 102
-            #蓝色(类型103)
-            elif color_code == blue_color_code:
-                img.draw_rectangle(blob_find.rect(),color = (0x00,0x00,0xFF))
-                img.draw_cross(blob_find.cx(), blob_find.cy(), color = (0x00,0x00,0xFF))
+
+            #D2类(类型103)
+            elif color_code == D2_color_code:
+                img.draw_circle(blob_find.cx(),blob_find.cy(),int(blob_find.w()/2 ),color = (255,255,0))
+                img.draw_cross(blob_find.cx(), blob_find.cy(),color = (255,255,0))
                 X = blob_find.cx()
                 Y = blob_find.cy()
                 FormType = 103
+
+            #A2类(类型104)
+            elif color_code == A2_color_code:
+                img.draw_circle(blob_find.cx(),blob_find.cy(),int(blob_find.w()/2 ),color = (0,255,0))
+                img.draw_cross(blob_find.cx(), blob_find.cy(),color = (0,255,0))
+                X = blob_find.cx()
+                Y = blob_find.cy()
+                FormType = 104
 
     return FormType,X,Y
 
@@ -568,7 +580,7 @@ def UART_Send(FormType, Loaction0, Location1):
 
 #OPENMV硬件相关配置
 sensor.reset() 							#init camera
-sensor.set_pixformat(sensor.GRAYSCALE) 	#灰度图像
+sensor.set_pixformat(sensor.GRAYSCALE) 	#彩色图像
 sensor.set_framesize(sensor.QQVGA) 		#设置像素为160*120
 sensor.skip_frames(30) 					#等待配置生效
 sensor.set_auto_gain(False) 			#颜色识别时必须关闭
@@ -587,10 +599,10 @@ while(True):
     CountDown -= 1
 
     if CountDown <= 0:
-        Find_ApriTag_ENABLE = False
+        Find_ApriTag_ENABLE = True
         Find_Line_ENABLE = False
         Find_ColorBlob_ENABLE = False
-        Find_Circle_ENABLE = True
+        Find_Circle_ENABLE = False
 
         if Find_ColorBlob_ENABLE == True:
             sensor.set_pixformat(sensor.RGB565) #彩色图像
@@ -631,7 +643,7 @@ while(True):
             #画出所有线
             for ii in All_Line:
                 img.draw_line(ii.line())
-     
+
     #寻找圆模式
     if Find_Circle_ENABLE:
         #获取圆心坐标
@@ -648,8 +660,6 @@ while(True):
     if Find_ColorBlob_ENABLE:
         #普通寻找色块模式
         (Type,P0,P1) = Find_ColorBlob(img)
-        #寻找最大色块模式
-        #(Type,P0,P1) = Find_ColorBlob_Max(img)
         pass
 
     #串口发送(类型+坐标)
@@ -658,17 +668,17 @@ while(True):
     #led指示
     i+=1
     if i % 5 == 0:
-        #寻找Apriltag模式红灯闪烁
-        if Find_ApriTag_ENABLE:
-            green_led.on()
-        else:
-        #普通巡线模式绿灯闪烁
+        #寻找色块模式红灯闪烁
+        if Find_ColorBlob_ENABLE:
             red_led.on()
-    if i % 10 == 0:
-        if Find_ApriTag_ENABLE:
-            green_led.off()
         else:
+        #其他模式绿灯闪烁
+            green_led.on()
+    if i % 10 == 0:
+        if Find_ColorBlob_ENABLE:
             red_led.off()
+        else:
+            green_led.off()
 
     print(Type,P0,P1)
 

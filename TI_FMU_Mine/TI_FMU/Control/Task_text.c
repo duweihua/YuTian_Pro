@@ -1,13 +1,18 @@
 /*
-本程序完成任务：
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
+本程序完成功能测试任务：																									完成情况
+	测试任务1	：使用UpdateCMD函数实现定长移动
+	测试任务2	：使用UpdateCMD函数实现飞行中升降
+	测试任务3	：使用UpdateCMD函数实现左右转向(开环定角度)
+	测试任务4 ：
+	测试任务5 ：
+	测试任务6 ：
+	测试任务7 ：
+	测试任务8 ：
+	测试任务9 ：
+	测试任务10：
+	测试任务11：
+	测试任务12：
+	测试任务13：
 */
 
 #include "FollowLine.h"
@@ -110,16 +115,22 @@ void UpdateCentControl(float dt)
 
     //更新程控动作线
     UpdateAction(dt);
+		
+		//更新当前位置
 }
+
 
 extern UAV_info_t g_UAVinfo;
 extern uint8_t finish_flag;
 s32 EXP_TAKEOFF_ALT_CM = 120;
 
-//此函数只做状态判断和状态更新
 void UpdateStatus()
 {
-		static uint16_t left_cnt = 0;
+//		static uint16_t left_cnt = 0;
+		static uint16_t forwardright_cnt = 0;
+		static uint16_t forwardleft_moreleft_cnt = 0;
+		static uint16_t forwardright_again_cnt = 0;
+		static uint16_t back_cnt = 0;
 	
     switch (FollowManager.ActionList)
     {
@@ -127,91 +138,105 @@ void UpdateStatus()
             break;
 
         case ActionCountdown:
-        {
-            FollowManager.CountDownNumMs--;
+						{
+								FollowManager.CountDownNumMs--;
 
-            if (FollowManager.CountDownNumMs <= 0)
-            {
-                FollowManager.ActionList = ActionTakeOff;
-								
-								EXP_TAKEOFF_ALT_CM = 120;
-            }
-        }
-        break;
+								if (FollowManager.CountDownNumMs <= 0)
+								{
+										FollowManager.ActionList = ActionTakeOff;
+										
+										EXP_TAKEOFF_ALT_CM = 40;
+								}
+						}
+						break;
 
         case ActionTakeOff:
-        {
-						//此处时间为起飞时间
-						ActionHoldPoint(MAX_HOVER_ERR, Take_off_Time, ActionHoverStartPoint);
-        }
-        break;
+						{
+								//此处时间为起飞时间
+								ActionHoldPoint(MAX_HOVER_ERR,Take_off_Time,ActionHoverStartPoint);
+						}
+						break;
 
         case ActionHoverStartPoint:
-						ActionHoldPoint(MAX_HOVER_ERR, 600, ActionLand);
+						ActionHoldPoint(MAX_HOVER_ERR,Short_Hold_Time,ActionGoForwardRight);
             break;
 
-        case ActionGoForward:
-						ActionFormChange(MAX_FORMCHANGE_TIME, ApriTag, ActionHoldApriTag);            
+        case ActionGoForwardRight:		
+						{	
+								forwardright_cnt++;
+									
+								if(forwardright_cnt>=400)
+								{
+										forwardright_cnt=400;
+									
+										FollowManager.ActionList = ActionHoldB3;
+								}
+						}
+						break;
+				
+        case ActionHoldB3:
+						ActionHoldPoint(MAX_HOVER_ERR,Short_Hold_Time,ActionGoForwardLeft_MoreLeft);
+            break;
+
+				case ActionGoForwardLeft_MoreLeft:
+						{	
+								forwardleft_moreleft_cnt++;
+									
+								if(forwardleft_moreleft_cnt>=800)
+								{
+										forwardleft_moreleft_cnt=800;
+									
+										FollowManager.ActionList = ActionHoldC1;
+								}
+						}
+						break;
+				
+        case ActionHoldC1:
+						ActionHoldPoint(MAX_HOVER_ERR,Short_Hold_Time,ActionGoForwardRight_Again);
+            break;
+
+				case ActionGoForwardRight_Again:
+						{	
+								forwardright_again_cnt++;
+									
+								if(forwardright_again_cnt>=400)
+								{
+										forwardright_again_cnt=400;
+									
+										FollowManager.ActionList = ActionHoldD2;
+								}
+						}
+						break;
+							
+				case ActionHoldD2:
+						ActionHoldPoint(MAX_HOVER_ERR,Short_Hold_Time,ActionGoBack);
+						break;
+				
+				case ActionGoBack:
+						{	
+								back_cnt++;
+									
+								if(back_cnt>=400)
+								{
+										back_cnt=400;
+									
+										FollowManager.ActionList = ActionHoldA2;
+								}
+						}
 						break;
 
-				case ActionHoldApriTag://动作：悬停ApriTag
-						
-						//任务2：起点悬停后前进寻找小车 找到后在小车上方悬停5s 然后向左移动再降落
-						if((FollowLine==false)&&(FollowApriTag==true))
-						{
-								ActionHoldPoint(MAX_HOVER_ERR,700,ActionGoLeft);
-						}
-						//任务3：起点悬停后前进寻找小车 找到后跟踪小车 直到小车停止运动后5s(收到信号) 然后向左移动再降落
-						if((FollowLine==true)&&(FollowApriTag==true))
-						{
-								if(finish_flag==1)//收到小车信号
-								{
-										//马上向左移动 准备降落
-										ActionHoldPoint(MAX_HOVER_ERR,50,ActionGoLeft);
-								}
-						}
+				case ActionHoldA2:
+						ActionHoldPoint(MAX_HOVER_ERR,Short_Hold_Time,ActionLand);
 						break;
-						
-				case ActionGoLeft:	//动作：向左
-						{
-								left_cnt++;
-							
-								if(left_cnt>=200)
-								{
-										left_cnt=200;
-									
-										FollowManager.ActionList = ActionHoverStopPoint;
-								}
-						}
-						break;
-							
-				case ActionHoverStopPoint://动作：
-						{
-								//
-								ActionHoldPoint(MAX_HOVER_ERR,100,ActionLand);
-						}
-						break;
-		
-        //自动降落状态倒计时结束以后 进入上锁动作
+
         case ActionLand:
 						{
-								//倒计时逻辑
 								static int Cnt = MAX_TIMEOUT1;
-								
-								//如果在任务1 自动赋值finish_flag
-								if((FollowLine==true)&&(FollowApriTag==false))
-								{
-										finish_flag = 1;
-								}
-								
 								if (Cnt-- < 0)
-								{
 										FollowManager.ActionList = ActionLock;
-								}
 						}
 						break;
 
-        //上锁动作
         case ActionLock:
             FollowManager.ActionList = ActionWaitting;
             break;
@@ -222,49 +247,106 @@ void UpdateStatus()
 }
 
 
-//只执行动作
 void UpdateAction(float dt)
 {
     switch (FollowManager.ActionList)
     {
-				//倒计时命令
 				case ActionWaitting:
-						//Do nothing
 						break;
 
-				//自动起飞命令
 				case ActionTakeOff:
-						UpdateCMD(0, 0, CmdTakeOff);
+						UpdateCMD(0,0,CmdTakeOff);
 						break;
-
-				//悬停命令
+				
 				case ActionHoverStartPoint:
-						//起飞
 						{
 								program_ctrl.vel_cmps_h[Y] = 0;
 								program_ctrl.vel_cmps_h[X] = 0;
 						}
 						break;
 						
-				//前后飞行
 				case ActionGoForward:
-				case ActionGoBack:
+				case ActionGoForward_Again:
 						{
 								//飞行不循线
 								//HoldCurrentPostion(dt);
-								
-								if(FollowManager.ActionList == ActionGoForward)
-								{
-										program_ctrl.vel_cmps_h[X] = 30;
-								}
-								else if(FollowManager.ActionList == ActionGoBack)
-								{
-										program_ctrl.vel_cmps_h[X] = -30;
-								}
+
+								program_ctrl.vel_cmps_h[X] = 25;	//前
+						}
+						break;
+						
+				case ActionGoBack:
+				case ActionGoBack_Again:
+						{
+								//飞行不循线
+								//HoldCurrentPostion(dt);
+
+								program_ctrl.vel_cmps_h[X] = -25;	//后
+						}
+						break;
+
+				case ActionGoLeft:
+				case ActionGoLeft_Again:
+						{
+								//飞行不循线
+								//HoldCurrentPostion(dt);
+								program_ctrl.vel_cmps_h[Y] = 20;	//左
+						}
+						break;
+
+				case ActionGoRight:
+				case ActionGoRight_Again:
+						{
+								//飞行不循线
+								//HoldCurrentPostion(dt);
+
+								program_ctrl.vel_cmps_h[Y] = -20;	//右
 						}
 						break;
 				
-				//悬停动作
+				case ActionGoForwardRight:		
+				case ActionGoForwardRight_Again:
+						{
+								program_ctrl.vel_cmps_h[Y] = -25;	//右
+								program_ctrl.vel_cmps_h[X] = 25;	//前
+						}
+						break;
+
+				case ActionGoForwardLeft_MoreLeft:
+						{
+								//飞行不循线
+								//HoldCurrentPostion(dt);
+
+								program_ctrl.vel_cmps_h[X] = 12.5;//前
+								program_ctrl.vel_cmps_h[Y] = 25;	//左
+						}
+						break;
+						
+				case ActionGoForward_Distance:
+						UpdateCMD(50,10,CmdForward);
+						break;
+				
+				case ActionGoBack_Distance:
+						UpdateCMD(20,10,CmdBack);
+						break;
+
+				case ActionGoLeft_Distance:
+						UpdateCMD(20,10,CmdLeft);
+						break;
+
+				case ActionGoRight_Distance:
+						UpdateCMD(20,10,CmdRight);
+						break;
+						
+				case ActionGoUp_Distance:
+						UpdateCMD(20,10,CmdUp);
+						break;
+				
+				case ActionGoDown_Distance:
+						UpdateCMD(20,10,CmdDown);
+						break;
+
+														
 				case ActionHoldLtype:
 				case ActionHoldMirrorFlipLtype:
 				case ActionHoldTurnLtype:
@@ -274,41 +356,31 @@ void UpdateAction(float dt)
 				case ActionHoldTurnTtype:
 				case ActionHoldFeaturePoint:
 				case ActionHoldApriTag:
-						if(FollowManager.ptrFrame->FormType == ApriTag)
+				case ActionHoldA1:
+				case ActionHoldA2:
+				case ActionHoldA3:
+				case ActionHoldB1:
+				case ActionHoldB2:
+				case ActionHoldB3:
+				case ActionHoldC1:
+				case ActionHoldC2:
+				case ActionHoldC3:
+				case ActionHoldD1:
+				case ActionHoldD2:
+				case ActionHoldD3:
 						{
-								//设置期望值 即期望小车在屏幕的中心
-								//这里只有HoldAprilTag模式才具有跟踪的功能
-								PIDGroup[emPID_FolloLinePosVertically].desired = 120/2;
-								PIDGroup[emPID_FolloLinePosHorizontally].desired = 160/2;
-								
-								HoldCurrentPostion(dt);
-						}
-						else
-						{
+//								//设置期望值 即期望悬停目标点在屏幕的中心
+//								PIDGroup[emPID_FolloLinePosVertically].desired = 120/2;
+//								PIDGroup[emPID_FolloLinePosHorizontally].desired = 160/2;
+//						
+//								HoldCurrentPostion(dt);
+							
 								program_ctrl.vel_cmps_h[Y] = 0;
 								program_ctrl.vel_cmps_h[X] = 0;
+									
 						}
 						break;
-						
-				//左右飞行
-				case ActionGoLeft:
-				case ActionGoRight:
-						{
-								//飞行不循线
-								//HoldCurrentPostion(dt);
-							
-								if(FollowManager.ActionList == ActionGoLeft)
-								{
-										program_ctrl.vel_cmps_h[Y] = 30;
-								}
-								else if(FollowManager.ActionList == ActionGoRight)
-								{
-										program_ctrl.vel_cmps_h[Y] = -30;
-								}
-						}
-						break;
-				
-				//
+										
 				case ActionHoverStopPoint:
 						{
 								program_ctrl.vel_cmps_h[Y] = 0;
@@ -316,17 +388,12 @@ void UpdateAction(float dt)
 						}
 						break;
 						
-				//自动降落
 				case ActionLand:
-						//降落命令
-						UpdateCMD(0, 0, CmdLand);
+						UpdateCMD(0,0,CmdLand);
 						break;
 
-				//上锁动作
 				case ActionLock:
-						//注意上锁要清除此标志位
 						g_FMUflg.unlock=0;
-						//另外一个标志位(g_UAVinfo.FMUflg->unlock)只会使飞机保持怠速
 						break;
 				
 				default:
@@ -416,7 +483,6 @@ void ActionHoldPoint(int8_t Err, int16_t HoldTime, FSMList_t NextAction)
 
 void UpdateButton()
 {
-    //判定两个输入是否有效，其实是判断左右两个按键
     volatile static uint8_t input = 0;
     volatile static uint8_t input2 = 0;
     input = P1IN & BIT1;

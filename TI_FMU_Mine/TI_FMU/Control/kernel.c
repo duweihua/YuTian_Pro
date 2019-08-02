@@ -58,7 +58,7 @@ void KernelPolling()
     KernelRunning = false;
         
     //查询是否有数据需要解析
-    ANO_DT_Data_Receive_Anl_Task();
+//    ANO_DT_Data_Receive_Anl_Task();
     
     //时间段轮询计数
     Cnt++;
@@ -140,6 +140,16 @@ void KernelPolling()
     
     //串口轮训函数
     PollingUSART();
+		
+//		LED测试代码段		
+//		if(Cnt % 2000 == 0)
+//		{
+//				g_LedManager.emLEDStatus = StatusOn;
+//		}
+//		else if(Cnt % 1000 == 0)
+//		{
+//				g_LedManager.emLEDStatus = StatusOff;
+//		}
 		
 //		//光报警测试
 //		g_LedManager.emLEDStatus = StatusOn;

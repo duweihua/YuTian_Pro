@@ -62,7 +62,7 @@
 #define MSP432
 
 #ifdef MSP432
-#define RADIO
+//#define RADIO
 #define SBUS
 
 #endif

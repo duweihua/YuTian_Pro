@@ -37,11 +37,21 @@ void BEEPInit(void)
 		MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6);
 }
 
+void MagnetInit(void)
+{
+	  //设置为输出
+    MAP_GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN4);
+	
+		//初始拉低 电磁铁不吸引
+		MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN4);
+}
+
 
 void Hadrware_Init(void)
 {
     LEDInit();                      //LED闪灯初始化
 		BEEPInit();											//蜂鸣器初始化
+		MagnetInit();										//电磁铁初始化
     MPU6050Init();                  //6050数据初始化
     SPL06Init();                    //SPL06初始化
     PID_Init();                     //PID参数初始化

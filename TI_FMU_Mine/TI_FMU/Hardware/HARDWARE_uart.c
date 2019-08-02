@@ -148,7 +148,7 @@ void USART_Init()
 
 
 void PollingUSART()
-{    
+{
     for(int i = 0;i < Num_USART; i++)
     {
         if(UsartGroup[i].RxStart)
@@ -162,7 +162,7 @@ void PollingUSART()
                    UsartGroup[i].RxCnt = MAX_RECEIVE_CNT;
                 }
                 
-                UsartGroup[i].RxHandle(UsartGroup[i].RxBuff, UsartGroup[i].RxCnt);
+                UsartGroup[i].RxHandle(UsartGroup[i].RxBuff,UsartGroup[i].RxCnt);
                 UsartGroup[i].RxTimeout = 0;
                 UsartGroup[i].RxStart = false;               
                 UsartGroup[i].RxCnt = 0;
@@ -251,7 +251,7 @@ typedef enum
 #include "ANO_GCS_DT.h"
 //匿名光流模式串口
 void EUSCIA0_IRQHandler(void)
-{
+ {
     uint32_t status = MAP_UART_getEnabledInterruptStatus(EUSCI_A0_BASE);
     UART_clearInterruptFlag(EUSCI_A0_BASE,status);
     uint8_t tmp_data;
@@ -282,8 +282,9 @@ void EUSCIA0_IRQHandler(void)
 }
 
 
-uint8_t wordreceivedfromcar = 0;
-uint8_t finish_flag = 0;
+//uint8_t wordreceivedfromcar = 0;
+//uint8_t finish_flag = 0;
+uint8_t wordreceivedfromremote[] = {0};
 extern bool FollowLine;
 extern bool FollowApriTag;
 //数传模块串口
@@ -297,36 +298,40 @@ void EUSCIA1_IRQHandler(void)
     {
         uint8_t temp = MAP_UART_receiveData(EUSCI_A1_BASE);
 			
-				wordreceivedfromcar = temp;
-			
-				//到达报警距离
-				if(wordreceivedfromcar==1)
-				{
-						//只有在非任务模式 才使能声光报警器
-						if((FollowLine==false)&&(FollowApriTag==false))
-						{
-								//光报警
-								g_LedManager.emLEDStatus = StatusOn;
-								//声报警
-								MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN6);
-						}
-				}
-				//逃离报警距离
-				else if(wordreceivedfromcar==2)
-				{
-						if((FollowLine==false)&&(FollowApriTag==false))
-						{
-								//光报警关闭
-								g_LedManager.emLEDStatus = StatusOff;
-								//声报警关闭
-								MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6);
-						}
-				}
-				//小车停车5秒 可以择地降落
-				else if(wordreceivedfromcar==3)
-				{
-						finish_flag = 1;
-				}
+//				wordreceivedfromremote[0] = temp;
+//			
+//				USART_TX(&UsartGroup[UART_A1],wordreceivedfromremote,1);
+//			
+//				wordreceivedfromcar = temp;
+//			
+//				//到达报警距离
+//				if(wordreceivedfromcar==1)
+//				{
+//						//只有在非任务模式 才使能声光报警器
+//						if((FollowLine==false)&&(FollowApriTag==false))
+//						{
+//								//光报警
+//								g_LedManager.emLEDStatus = StatusOn;
+//								//声报警
+//								MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN6);
+//						}
+//				}
+//				//逃离报警距离
+//				else if(wordreceivedfromcar==2)
+//				{
+//						if((FollowLine==false)&&(FollowApriTag==false))
+//						{
+//								//光报警关闭
+//								g_LedManager.emLEDStatus = StatusOff;
+//								//声报警关闭
+//								MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6);
+//						}
+//				}
+//				//小车停车5秒 可以择地降落
+//				else if(wordreceivedfromcar==3)
+//				{
+//						finish_flag = 1;
+//				}
     }
     
     if(status & EUSCI_A_UART_TRANSMIT_INTERRUPT_FLAG)
@@ -353,17 +358,16 @@ void EUSCIA1_IRQHandler(void)
 void EUSCIA3_IRQHandler(void)
 {
     uint32_t status = MAP_UART_getEnabledInterruptStatus(EUSCI_A3_BASE);
-    UART_clearInterruptFlag(EUSCI_A3_BASE, status);
+    UART_clearInterruptFlag(EUSCI_A3_BASE,status);
     
     if(status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
     {
-			uint8_t temp = MAP_UART_receiveData(EUSCI_A3_BASE);
-			ANO_DT_Data_Receive_Prepare(temp);
+				uint8_t temp = MAP_UART_receiveData(EUSCI_A3_BASE);
 
-            UsartGroup[UART_A3].RxBuff[UsartGroup[UART_A3].RxCnt] = MAP_UART_receiveData(EUSCI_A3_BASE);
-            UsartGroup[UART_A3].RxCnt++;
-            UsartGroup[UART_A3].RxStart = true;
-            UsartGroup[UART_A3].RxTimeout = 0;
+				UsartGroup[UART_A3].RxBuff[UsartGroup[UART_A3].RxCnt] = MAP_UART_receiveData(EUSCI_A3_BASE);
+				UsartGroup[UART_A3].RxCnt++;
+				UsartGroup[UART_A3].RxStart = true;
+				UsartGroup[UART_A3].RxTimeout = 0;
     }
     
     if(status & EUSCI_A_UART_TRANSMIT_INTERRUPT_FLAG)
@@ -378,7 +382,7 @@ void EUSCIA3_IRQHandler(void)
                 UsartGroup[UART_A3].TxCnt = 0;
             }else
             {
-                UART_transmitData(UsartGroup[UART_A3].moduleInstance, 
+                UART_transmitData(UsartGroup[UART_A3].moduleInstance,
                                   UsartGroup[UART_A3].TxBuff[UsartGroup[UART_A3].TxCnt]);
             }
         }
@@ -418,7 +422,16 @@ void UART_A1_ReceiveHandle(uint8_t *ptr, uint8_t length)
 }
 
 
-
+//重定向printf
+int putchar(int ch)
+{
+    MAP_UART_transmitData(EUSCI_A1_BASE , (uint8_t)ch );
+      
+    
+     while (!MAP_UART_getInterruptStatus(EUSCI_A1_BASE,
+                                        EUSCI_A_UART_TRANSMIT_INTERRUPT_FLAG));
+    return ch;
+}
 
 
 
