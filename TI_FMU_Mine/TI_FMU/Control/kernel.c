@@ -96,7 +96,7 @@ void KernelPolling()
         AnoOF_State_Task(11);
     }
     
-    //100Hz
+    //100Hz(周期10ms)
     if (Cnt % 10 == 0)
     {
         //轮训GCS任务

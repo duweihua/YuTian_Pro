@@ -26,7 +26,16 @@ Project File Date:  08/01/2019
 
 <h2>Output:</h2>
 Build target 'ZKHD_MSP432_FMU'
-".\Objects\ZKHD_MSP432_FMU.axf" - 0 Error(s), 0 Warning(s).
+compiling Task_2019.c...
+Control\Task_2019.c(124): warning:  #177-D: variable "forward_distance" was declared but never referenced
+                static uint16_t forward_distance = 0;
+Control\Task_2019.c(419): warning:  #223-D: function "sprintf" declared implicitly
+                                ZKHD_Printf("ÎÞÄ¿±ê      ");    
+Control\Task_2019.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=29148 RO-data=748 RW-data=484 ZI-data=6132  
+FromELF: creating hex file...
+".\Objects\ZKHD_MSP432_FMU.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -55,14 +64,14 @@ Package Vendor: TexasInstruments
       Source file:   CMSIS\UserCodeTemplates\ARM\ITM_Retarget.c
 
    * Component: ARM::CMSIS:DSP:1.4.2
-      Include file:  CMSIS\Include\arm_math.h
       Library file:  CMSIS\Lib\ARM\arm_cortexM4lf_math.lib
+      Include file:  CMSIS\Include\arm_math.h
 
    * Component: TexasInstruments::Device:Startup:3.2.2
-      Source file:   Device\Source\startup_msp432p401r_uvision.s
-      Source file:   Examples\EmptyMain\main.c
-      Include file:  Device\Include\msp_compatibility.h
       Source file:   Device\Source\system_msp432p401r.c
+      Include file:  Device\Include\msp_compatibility.h
+      Source file:   Examples\EmptyMain\main.c
+      Source file:   Device\Source\startup_msp432p401r_uvision.s
       Source file:   Examples\BlinkLED\blinkLED.c
 </pre>
 </body>

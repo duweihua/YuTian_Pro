@@ -27,7 +27,7 @@
 ".\objects\pos_ctrl.o"
 ".\objects\program_ctrl.o"
 ".\objects\sdk.o"
-".\objects\task_base.o"
+".\objects\task_2019.o"
 ".\objects\gcs.o"
 ".\objects\ano_dt.o"
 ".\objects\zkhd_link.o"

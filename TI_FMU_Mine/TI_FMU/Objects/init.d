@@ -62,3 +62,4 @@
 .\objects\init.o: .\Sensor\spl06.h
 .\objects\init.o: .\Connect\communication.h
 .\objects\init.o: Control\FollowLine.h
+.\objects\init.o: Control\program_ctrl.h

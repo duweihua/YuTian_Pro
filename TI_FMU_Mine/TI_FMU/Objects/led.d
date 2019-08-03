@@ -61,3 +61,4 @@
 .\objects\led.o: .\Control\remote.h
 .\objects\led.o: .\Math\imu.h
 .\objects\led.o: .\Sensor\mpu6050.h
+.\objects\led.o: .\Control\program_ctrl.h

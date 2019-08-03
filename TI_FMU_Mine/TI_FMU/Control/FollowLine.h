@@ -5,42 +5,87 @@
 #include "stdbool.h"
 #include "pid.h"
 #include "gcs.h"
+#include "program_ctrl.h"
 
-//单位:10ms
-#define MAX_COUNTDOWN       		500
+
+//起降相关宏定义(时间单位:10ms)
+#define MAX_COUNTDOWN       		500		//起飞倒计时时间
+#define Take_off_Time						200		//起飞时间
+#define Take_off_Hold_Time			150		//起飞悬停时间
+#define MAX_TIMEOUT1        		400		//降落后上锁时间
+extern s32 EXP_TAKEOFF_ALT_CM;				//自动起飞高度(Task_2019.c中定义)
+
+
+//悬停相关宏定义(时间单位:10ms)
+#define Move_Hold_Time_Shrot		30		//移动悬停时间
+#define Move_Hold_Time					100		
+#define Move_NoJudge_Hold_Time	400
+#define Static_Hold_Time 				150		//定点悬停时间
+#define Judge_Err								30		//悬停允许误差
+
+
+//确认检测次数相关宏定义
+#define Short_Formchange_Time 	3			//连续检测确认目标次数
+#define Middle_Formchange_Time 	15
+#define Long_Formchange_Time 		50
+
+
+//OpenMV镜头矫正相关宏定义
+#define PosVertically_Offset 		15		//前后方向镜头矫正(正值使飞机定点偏前)
+#define PosHorizontall_Offset 	0			//左右方向镜头矫正(正值使飞机定点偏左)
+
+
+//移动速度相关宏定义
+#define Straight_Forward_Speed			32
+#define Straight_Back_Speed					32
+#define Straight_Left_Speed					32
+#define Straight_Right_Speed				32
+#define Straight_Up_Speed						8
+#define Straight_Down_Speed					8
+
+#define ForwardLeft_Speed						25
+#define ForwardRight_Speed					25
+#define BackLeft_Speed							25
+#define BackRight_Speed							25
+
+//左前偏左
+#define ForwardLeft_MoreLeft_Left_Speed						25
+#define ForwardLeft_MoreLeft_Forward_Speed				13
+//左前偏前
+#define ForwardLeft_MoreForward_Left_Speed				13
+#define ForwardLeft_MoreForward_Forward_Speed			25
+//右前偏右
+#define ForwardRight_MoreRight_Right_Speed				25
+#define ForwardRight_MoreRight_Forward_Speed			13
+//右前偏前
+#define ForwardRight_MoreForward_Right_Speed			13
+#define ForwardRIght_MoreForward_Forward_Speed		25
+//左后偏左
+#define BackLeft_MoreLeft_Left_Speed							25
+#define BackLeft_MoreLeft_Back_Speed							13
+//左后偏后
+#define BackLeft_MoreBack_Left_Speed							13
+#define BackLeft_MoreBack_Back_Speed							25
+//右后偏右
+#define BackRight_MoreRight_Right_Speed						25
+#define BackRight_MoreRight_Back_Speed						13
+//右后偏后
+#define BackRight_MoreBack_Right_Speed						13
+#define BackRight_MoreBack_Back_Speed							25
+
+#define TurnLeft_Speed					0.2f		//(20deg/s)
+#define TurnRight_Speed					0.2f		//(20deg/s)
+
+
+//无用宏定义
 #define TARGETALTITUDECM    		50
 #define MAX_HOVER_ERR       		10
 #define MAX_HOVER_TIME      		300
-#define MAX_TIMEOUT1        		400
 #define MAX_TIMEOUT2        		1500
 #define MAX_ALT_ERR         		10
 
-#define Short_Formchange_Time 	3
-#define Middle_Formchange_Time 	15
-#define Long_Formchange_Time 		50
-#define Long_Formchange_Time_D3 100
 
-#define Take_off_Time						200		//起飞时间
-#define Take_off_Hold_Time			150		//起飞悬停时间
-
-#define Move_Hold_Time_Shrot		30
-#define Move_Hold_Time					100
-#define Move_Hold_Time_A1				30
-#define Move_Hold_Time_D3				240
-#define Move_Hold_Time_Wood			300
-#define Move_NoJudge_Hold_Time	400
-
-#define Static_Hold_Time 				150
-
-#define Judge_Err								30
-
-#define PosVertically_Offset 		15
-#define PosHorizontall_Offset 	0
-
-/*
-
-*/
-
+//命令定义
 typedef enum
 {
     CmdNone = 0,
@@ -52,49 +97,39 @@ typedef enum
     CmdBack,
     CmdLeft,
     CmdRight,
-    CmdTurnLeft,		//左转
-    CmdTurnRight,		//右转
+    CmdTurnLeft,		
+    CmdTurnRight,		
     CmdEmergencyShutDown,
     CmdSpeeedControl,
     
     NumofCmd,
 }FMUCmd_t;
 
+
+//图形定义
 typedef enum
 {
-    Vertical  = 0,      //竖线
-    Horizontal ,        //横线
-    Cross,              //十字
-    Ttype,              //T字形
-    TurnTtype,          //倒T字形
-    Ltype,              //L字形
-    MirrorFlipLtype,    //镜像翻转L字形
-    TurnLtype,          //倒L字形
-    MirrorFlipTurnLtype,//镜像翻转倒L字形
+    Vertical  = 0,      
+    Horizontal ,        
+    Cross,              
+    Ttype,              
+    TurnTtype,          
+    Ltype,              
+    MirrorFlipLtype,    
+    TurnLtype,          
+    MirrorFlipTurnLtype,
     LeftTtype,
 	
     ApriTag = 100,
   
-		A1type = 0xA1,
-		A2type = 0xA2,
-		A3type = 0xA3,
-		B1type = 0xB1,
-		B2type = 0xB2,
-		B3type = 0xB3,
-		C1type = 0xC1,
-		C2type = 0xC2,
-		C3type = 0xC3,
-		D1type = 0xD1,
-		D2type = 0xD2,
-		D3type = 0xD3,
-		
-		Woodtype = 0xBB,
-	
     NumofForm,
 }FormType_t;
 
+
+//动作定义
 typedef enum
 {
+		//基本动作组1
     ActionWaitting = 0,
     ActionCountdown,
     ActionTakeOff,
@@ -110,65 +145,58 @@ typedef enum
     ActionHoldTurnTtype,
     ActionHoldFeaturePoint,
     ActionHoldLeftTtype,
+	
     ActionHoldApriTag,
-		ActionHoldA1,
-		ActionHoldA2,
-		ActionHoldA2_Again,
-		ActionHoldA2_Third,
-		ActionHoldA3,
-		ActionHoldB1,
-		ActionHoldB2,
-		ActionHoldB3,
-		ActionHoldC1,
-		ActionHoldC2,
-		ActionHoldC3,
-		ActionHoldD1,
-		ActionHoldD2,
-		ActionHoldD3,
-		ActionHoldA1_Static,
-		ActionHoldA2_Static,
-		ActionHoldA3_Static,
-		ActionHoldB1_Static,
-		ActionHoldB2_Static,
-		ActionHoldB3_Static,
-		ActionHoldC1_Static,
-		ActionHoldC2_Static,
-		ActionHoldC3_Static,
-		ActionHoldD1_Static,
-		ActionHoldD2_Static,
-		ActionHoldD3_Static,
-		
-		ActionHoldWood,
-		ActionHoldWood_Again,
-		
+			
 		//飞行动作
-    ActionGoForward,							//前
-		ActionGoForward_Again,		
-    ActionGoBack,									//后
-		ActionGoBack_Again,			
-    ActionGoLeft,									//左
-		ActionGoLeft_Again,			
-    ActionGoRight,								//右
-		ActionGoRight_Again,	
-		ActionGoForwardRight,					//右前
-		ActionGoForwardRight_Again	,
-		ActionGoForwardLeft,					//左前
-		ActionGoForwardLeft_Again,	
-		ActionGoBackRight,						//右后
-		ActionGoBackRight_Again,	
-		ActionGoBackLeft,							//左后
+    ActionGoForward,									//前
+		ActionGoForward_Again,			
+		ActionGoForward_Third,			
+    ActionGoBack,											//后
+		ActionGoBack_Again,						
+		ActionGoBack_Third,						
+    ActionGoLeft,											//左
+		ActionGoLeft_Again,					
+		ActionGoLeft_Third,					
+    ActionGoRight,										//右
+		ActionGoRight_Again,				
+		ActionGoRight_Third,		
+		ActionGoUp,												//上
+		ActionGoUp_Again,								
+		ActionGoUp_Third,	
+		ActionGoDown,											//下
+		ActionGoDown_Again,							
+		ActionGoDown_Third,			
+		ActionGoForwardRight,							//右前
+		ActionGoForwardRight_Again,			
+		ActionGoForwardRight_Third,			
+		ActionGoForwardLeft,							//左前
+		ActionGoForwardLeft_Again,				
+		ActionGoForwardLeft_Third,			
+		ActionGoBackRight,								//右后
+		ActionGoBackRight_Again,				
+		ActionGoBackRight_Third,			
+		ActionGoBackLeft,									//左后
 		ActionGoBackLeft_Again,
-		ActionGoForwardLeft_MoreLeft,	//左前偏左
-		ActionGoUp,										
-		ActionGoUp_Again,							//上
-		ActionGoDown,		
-		ActionGoDown_Again,						//下
+		ActionGoBackLeft_Third,
+		ActionGoForwardLeft_MoreLeft,			//左前偏左
+		ActionGoForwardLeft_MoreForward,	//左前偏前
+		ActionGoForwardRight_MoreRight,		//右前偏右
+		ActionGoForwardRight_MoreForward,	//右前偏前
+		ActionGoBackLeft_MoreLeft,				//左后偏左
+		ActionGoBackLeft_MoreBack,				//左后偏后
+		ActionGoBackRight_MoreRight,			//右后偏右
+		ActionGoBackRight_MoreBack,				//右后偏后
 		
-		//转向(未开发)
+		//转向
 		ActionTurnLeft,
+		ActionTurnLeft_Again,
+		ActionTurnLeft_Third,
 		ActionTurnRight,
+		ActionTurnRight_Again,
+		ActionTurnRight_Third,
 
-		//定长移动(未开发)
+		//定长移动(没必要开发)
 		ActionGoForward_Distance,
 		ActionGoBack_Distance,
 		ActionGoLeft_Distance,
@@ -176,6 +204,7 @@ typedef enum
 		ActionGoUp_Distance,
 		ActionGoDown_Distance,
 
+		//基本动作组2
     ActionHoverStopPoint,
     ActionFollowTarget,
     ActionLostTargetInfo,
@@ -183,12 +212,13 @@ typedef enum
     ActionLock,
     ActionTest,
     ActionSonar,
-    
     ActionEmergencyLand,
 
     NumofActionList,
 }FSMList_t;
 
+
+//进入同一动作次数定义
 typedef enum
 {
     ActionTimes1 = 0,
@@ -197,6 +227,8 @@ typedef enum
     ActionTimes4,
 }ActionTimes_t;
 
+
+//巡线相关坐标定义
 typedef struct
 {
     int16_t x1;
@@ -205,11 +237,14 @@ typedef struct
     int16_t y2;
 }Line_t;
 
+
+//寻点相关坐标定义
 typedef struct
 {
     int16_t x1;
     int16_t y1;
 }Point_t;
+
 
 //数据结构声明
 #pragma pack (1)
@@ -223,6 +258,7 @@ typedef struct
 }OpenMVFrame_t;
 #pragma pack ()    
 
+
 typedef struct
 {
     uint16_t SonarF;
@@ -231,6 +267,7 @@ typedef struct
     uint16_t SonarR;
     
 }SonarManager_t;
+
 
 typedef struct
 {
@@ -244,11 +281,13 @@ typedef struct
     PIDInfo_t   *ptrPIDInfoH;
 }FollowManager_t;
 
+
 extern FollowManager_t FollowManager;
 extern SonarManager_t SonarManager;
 
 void UpdateCentControl(float dt);
 void Follow_Init(void);
+
 #endif
 
 
