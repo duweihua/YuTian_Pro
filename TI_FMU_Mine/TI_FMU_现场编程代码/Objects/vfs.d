@@ -1,0 +1,10 @@
+.\objects\vfs.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\kernel\fs\vfs\vfs.c
+.\objects\vfs.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\osal\aos\include\aos/aos.h
+.\objects\vfs.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\osal\aos\include\aos/types.h
+.\objects\vfs.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\vfs.o: D:\MDK\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\vfs.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\unistd.h
+.\objects\vfs.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\sys/unistd.h
+.\objects\vfs.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\fcntl.h
+.\objects\vfs.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\sys/fcntl.h
+.\objects\vfs.o: .\RTE\_ZKHD_MSP432_FMU\RTE_Components.h

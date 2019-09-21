@@ -4679,51 +4679,51 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-      1604        198          0         14        128       3668   ano_altctrl.o
-      2508        218          0         16        488       6311   ano_attctrl.o
-      8324        358          0         34        770      22114   ano_dt.o
-        40         10          0         15        112       3506   ano_fcdata.o
-       266          0          0          0          0       2876   ano_filter.o
-      2066        262          0         40         52       8601   ano_flightctrl.o
-       884        166          0         65          0       4503   ano_flightdatacal.o
-      2228        338          0          5         84       3742   ano_flyctrl.o
-      2984        182          0        340         84       6955   ano_imu.o
-      1524         84          0         39         15       5120   ano_led.o
-      3388        268          0         54        328       4076   ano_locctrl.o
-      1256        104          0         32          0       4119   ano_magprocess.o
-       756         38       1028          0          0       5974   ano_math.o
-       684         94          0         29         76       2009   ano_motioncal.o
-       560         32          0         20         16       2215   ano_motorctrl.o
-       856        122          0         78         50       4460   ano_of.o
-      1068        110          0          4       2048       5354   ano_parameter.o
-       288          4          0          0          0       1844   ano_pid.o
-       476         60          0         12          0       1018   ano_power.o
-       658         96          0         52         32       6483   ano_programctrl_user.o
-      2140        294          0         51         36       9150   ano_rc.o
-       518         60          0         64          0       9939   ano_scheduler.o
-      2080        176          0         73        348       7215   ano_sensor_basic.o
-       392         58          0         17          0      15798   ano_usb.o
-        96         14          0          0        572       2568   ano_uwb.o
-       356         58          0          4          0       1800   drv_adc.o
-       272         24          0          6          0       3242   drv_ak8975.o
-       426         54          0          8          0      33808   drv_bsp.o
-      1314        104        143         25        232       7821   drv_gps.o
-       736        166          0         19         12       2395   drv_heating.o
-       934         48          0          1         14       7511   drv_icm20602.o
-       324         22          0          0          0       1121   drv_led.o
-        88         18          0          0          0       1473   drv_paramter.o
-      1004         76          0          0          0       1989   drv_pwmout.o
-      1208        108          0         18         89       4607   drv_rcin.o
-       246         24          0          0          0       2026   drv_spi.o
-      1796        112          0         32         44       9649   drv_spl06.o
-      1226        158          0         16       1280       9364   drv_uart.o
-        24          6          0          0          0      30347   main.o
-       252         10        620          0       2560       5412   startup_tm4c123.o
-       152         40          0          0          0        577   system_tm4c123.o
-         0          0        216        208        512      26542   usb_serial_structs.o
+      1604        198          0         14        128       3736   ano_altctrl.o
+      2508        218          0         16        488       6407   ano_attctrl.o
+      8324        358          0         34        770      22410   ano_dt.o
+        40         10          0         15        112       3546   ano_fcdata.o
+       266          0          0          0          0       2916   ano_filter.o
+      2066        262          0         40         52       8741   ano_flightctrl.o
+       884        166          0         65          0       4583   ano_flightdatacal.o
+      2228        338          0          5         84       3806   ano_flyctrl.o
+      2984        182          0        340         84       7051   ano_imu.o
+      1524         84          0         39         15       5208   ano_led.o
+      3388        268          0         54        328       4132   ano_locctrl.o
+      1256        104          0         32          0       4195   ano_magprocess.o
+       756         38       1028          0          0       6082   ano_math.o
+       684         94          0         29         76       2041   ano_motioncal.o
+       560         32          0         20         16       2255   ano_motorctrl.o
+       856        122          0         78         50       4524   ano_of.o
+      1068        110          0          4       2048       5458   ano_parameter.o
+       288          4          0          0          0       1880   ano_pid.o
+       476         60          0         12          0       1038   ano_power.o
+       658         96          0         52         32       6591   ano_programctrl_user.o
+      2140        294          0         51         36       9290   ano_rc.o
+       518         60          0         64          0      10087   ano_scheduler.o
+      2080        176          0         73        348       7307   ano_sensor_basic.o
+       392         58          0         17          0      15898   ano_usb.o
+        96         14          0          0        572       2616   ano_uwb.o
+       356         58          0          4          0       1848   drv_adc.o
+       272         24          0          6          0       3322   drv_ak8975.o
+       426         54          0          8          0      33912   drv_bsp.o
+      1314        104        143         25        232       7953   drv_gps.o
+       736        166          0         19         12       2435   drv_heating.o
+       934         48          0          1         14       7671   drv_icm20602.o
+       324         22          0          0          0       1145   drv_led.o
+        88         18          0          0          0       1497   drv_paramter.o
+      1004         76          0          0          0       2021   drv_pwmout.o
+      1208        108          0         18         89       4707   drv_rcin.o
+       246         24          0          0          0       2070   drv_spi.o
+      1796        112          0         32         44       9829   drv_spl06.o
+      1226        158          0         16       1280       9508   drv_uart.o
+        24          6          0          0          0      30383   main.o
+       252         10        620          0       2560       5424   startup_tm4c123.o
+       152         40          0          0          0        589   system_tm4c123.o
+         0          0        216        208        512      26610   usb_serial_structs.o
 
     ----------------------------------------------------------------------
-     48022       4374       2040       1420       9992     299302   Object Totals
+     48022       4374       2040       1420       9992     302722   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         20          0          1         29         10          0   (incl. Padding)
 
@@ -4804,8 +4804,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     63324       5112       4016       2668      10460     466676   Grand Totals
-     63324       5112       4016        268      10460     466676   ELF Image Totals (compressed)
+     63324       5112       4016       2668      10460     470096   Grand Totals
+     63324       5112       4016        268      10460     470096   ELF Image Totals (compressed)
      63324       5112       4016        268          0          0   ROM Totals
 
 ==============================================================================

@@ -42,7 +42,7 @@
 static u8 lt0_run_flag;
 static u8 circle_cnt[2];
 void INT_1ms_Task()
-{	
+{
 //	if(fc_sta.start_ok == 0) return;
 	
 	//标记1ms执行
@@ -85,7 +85,6 @@ static void Loop_Task_0()//1ms执行一次
 	/*开关状态任务*/
 	Swtich_State_Task(1);
 	
-
 	/*数传数据交换*/
 	ANO_DT_Data_Exchange();	
 }

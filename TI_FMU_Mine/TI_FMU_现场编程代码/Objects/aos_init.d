@@ -1,0 +1,13 @@
+.\objects\aos_init.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\kernel\init\aos_init.c
+.\objects\aos_init.o: D:\MDK\ARM\ARMCC\Bin\..\include\string.h
+.\objects\aos_init.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\aos_init.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\aos_init.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\osal\aos\include\aos/aos.h
+.\objects\aos_init.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\osal\aos\include\aos/types.h
+.\objects\aos_init.o: D:\MDK\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\aos_init.o: D:\MDK\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\aos_init.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\unistd.h
+.\objects\aos_init.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\sys/unistd.h
+.\objects\aos_init.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\fcntl.h
+.\objects\aos_init.o: D:\MDK\ARM\PACK\Alibaba\AliOSThings\2.0.0\aos\utility\libc\compilers\armlibc\sys/fcntl.h
+.\objects\aos_init.o: .\RTE\_ZKHD_MSP432_FMU\RTE_Components.h
