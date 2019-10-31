@@ -1,0 +1,14 @@
+1、程序讲解
+	https://blog.csdn.net/kissgoodbye2012/article/details/81709745
+	
+2、异或处理说明
+	https://blog.csdn.net/yanjinxu/article/details/47861323
+	
+3、参考程序
+	https://blog.csdn.net/wsh15732151882/article/details/79287302
+	
+4、模拟iic
+	https://blog.csdn.net/a568713197/article/details/80156868
+	
+5、电子秤
+	https://www.geek-workshop.com/thread-2315-1-1.html
