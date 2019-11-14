@@ -2,7 +2,7 @@
 .\objects\main.o: ..\User\main.h
 .\objects\main.o: ..\CM3\stm32f10x.h
 .\objects\main.o: ..\CM3\core_cm3.h
-.\objects\main.o: D:\MDK5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\main.o: ..\CM3\system_stm32f10x.h
 .\objects\main.o: ..\User\stm32f10x_conf.h
 .\objects\main.o: ..\Libraries\stm32f10x_adc.h
@@ -17,8 +17,8 @@
 .\objects\main.o: ..\Libraries\stm32f10x_tim.h
 .\objects\main.o: ..\Libraries\stm32f10x_usart.h
 .\objects\main.o: ..\Libraries\misc.h
-.\objects\main.o: D:\MDK5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\main.o: D:\MDK5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\main.o: ..\Hardware\delay.h
 .\objects\main.o: ..\User\main.h
 .\objects\main.o: ..\Hardware\led.h
