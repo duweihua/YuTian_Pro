@@ -1,0 +1,647 @@
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\keiluvision\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>        
+   2          #include "12864.h"
+   3          
+   4          static unsigned long Seed = 1;
+   5          
+   6          #define A 48271L
+   7          #define M 2147483647L
+   8          #define Q (M / A)//44488
+   9          #define R (M % A)//3399
+  10          
+  11          sbit K1=P3^0;    //上
+  12          sbit K2=P3^1;    //下
+  13          sbit K3=P3^2;    //左
+  14          sbit K4=P3^3;    //右
+  15          
+  16          //绘制边框的数组
+  17          //游戏界面数组
+  18          unsigned int idata num[19+2]=
+  19          {
+  20          0xfff,                                  //第1行，最下面
+  21          0x801,0x801,0x801,0x801,
+  22          0x801,0x801,0x801,0x801,
+  23          0x801,0x801,0x801,0x801,
+  24          0x801,0x801,0x801,0x801,
+  25          0x801,0x801,0x801,              //第2行到第20行共19行
+  26          0xfff                                   //第21行，最上面
+  27          };
+  28          
+  29          //定义共21行，其中num[0]为下墙壁行，num[20]为上墙壁行,每行12格，最左一格为左墙壁列，最右一格为右墙壁列
+  30          /*
+  31                                  0 1     2 3     4 5     6 7 8 9 10 11
+  32                  0   ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+  33                          1   ■ □ □ □ □ □ □ □ □ □ □ ■
+  34                          2   ■ □ □ □ □ □ □ □ □ □ □ ■
+  35                          3   ■ □ □ □ □ □ □ □ □ □ □ ■
+  36                          4   ■ □ □ □ □ □ □ □ □ □ □ ■
+  37                          5   ■ □ □ □ □ □ □ □ □ □ □ ■
+  38                          6   ■ □ □ □ □ □ □ □ □ □ □ ■
+  39                          7   ■ □ □ □ □ □ □ □ □ □ □ ■
+  40                          8   ■ □ □ □ □ □ □ □ □ □ □ ■            
+  41                          9   ■ □ □ □ □ □ □ □ □ □ □ ■
+  42                      10  ■ □ □ □ □ □ □ □ □ □ □ ■
+  43                      11  ■ □ □ □ □ □ □ □ □ □ □ ■
+  44                      12  ■ □ □ □ □ □ □ □ □ □ □ ■
+  45                      13  ■ □ □ □ □ □ □ □ □ □ □ ■
+  46                  14      ■ □ □ □ □ □ □ □ □ □ □ ■
+  47                      15  ■ □ □ □ □ □ □ □ □ □ □ ■
+  48                      16  ■ □ □ □ □ □ □ □ □ □ □ ■
+  49                      17  ■ □ □ □ □ □ □ □ □ □ □ ■
+  50                      18  ■ □ □ □ □ □ □ □ □ □ □ ■
+  51                      19  ■ □ □ □ □ □ □ □ □ □ □ ■
+  52                      20  ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+  53          
+  54          
+  55          */
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 2   
+
+  56          
+  57          //二维数组定义所有形状的所有方向
+  58          //以4*4的方块为一个单元，将各个形状转化为编码
+  59          unsigned char code Block[28][2]={
+  60          /*
+  61          *   口            口口口           口口
+  62          *   口        口             口           口
+  63          *   口口                     口           口口口      
+  64          */
+  65          {0x88,0xc0},{0xe8,0x00},{0x62,0x20},{0x02,0xe0},
+  66          /*
+  67          *     口                    口口      口口口
+  68          *     口      口            口            口
+  69          *   口口      口口口        口    
+  70          */
+  71          {0x22,0x60},{0x08,0xe0},{0xc8,0x80},{0xe2,0x00},  
+  72          /*
+  73          *   口
+  74          *   口口         口口
+  75          *     口       口口
+  76          */
+  77          {0x8c,0x40},{0x6c,0x00},{0x8c,0x40},{0x6c,0x00},
+  78          /*
+  79          *     口       口口
+  80          *   口口         口口
+  81          *   口
+  82          */
+  83          {0x4c,0x80},{0xc6,0x00},{0x4c,0x80},{0xc6,0x00},  
+  84          /*
+  85          *               口                       口
+  86          *    口         口口       口口口      口口
+  87          *  口口口       口           口          口
+  88          */
+  89          {0x04,0xe0},{0x8c,0x80},{0xe4,0x00},{0x26,0x20},
+  90          /*   口
+  91          *    口
+  92          *    口       口口口口
+  93          *    口
+  94          */
+  95          {0x44,0x44},{0x0f,0x00},{0x44,0x44},{0x0f,0x00},  
+  96          /*
+  97          *   口口
+  98          *   口口
+  99          */  
+ 100          {0x06,0x60},{0x06,0x60},{0x06,0x60},{0x06,0x60}
+ 101          };
+ 102          
+ 103          #define PASSSCORE 2
+ 104          
+ 105          
+ 106          struct Jimu
+ 107          {
+ 108                  unsigned int dat;
+ 109                  char x;
+ 110                  unsigned char y;
+ 111                  unsigned char type;
+ 112                  unsigned char change;
+ 113          }Sign[3];//积木结构体
+ 114          
+ 115          unsigned char SysFlag=0;
+ 116          
+ 117          #define NEWSIGNFLAG 0
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 3   
+
+ 118          #define DEADFLAG 1
+ 119          #define PAUSEFLAG 2
+ 120          
+ 121          unsigned char Score=0;
+ 122          unsigned char Level=1;
+ 123          unsigned char DelayCnt=5;
+ 124          unsigned char upflag=0;
+ 125          
+ 126          
+ 127          /*********************************************************/
+ 128          #define N 25
+ 129          /************************************
+ 130          伪随机数发生器  
+ 131          产生一个随机数用来 生成新的积木
+ 132          *************************************/
+ 133          double Random(void)
+ 134          {
+ 135   1              long TmpSeed;
+ 136   1              TmpSeed=A*(Seed%Q)-R*(Seed/Q);
+ 137   1              if(TmpSeed>=0)
+ 138   1                      Seed=TmpSeed;
+ 139   1              else
+ 140   1                      Seed=TmpSeed+M ;
+ 141   1              return (double)Seed/M;
+ 142   1      }
+ 143          
+ 144          
+ 145          /**************************************
+ 146          为伪随机数发生器播种
+ 147          ***************************************/
+ 148          void InitRandom(unsigned long InitVal)
+ 149          {
+ 150   1              Seed=InitVal;
+ 151   1      }
+ 152          
+ 153          
+ 154          //延时子程序
+ 155          void Delay(unsigned int t)
+ 156          {  
+ 157   1              unsigned int i,j;
+ 158   1              for(i=0;i<t;i++)
+ 159   1                      for(j=0;j<10;j++);    
+ 160   1      }
+ 161          
+ 162          
+ 163          /*********************************
+ 164          初始化MPU ？？？
+ 165          **********************************/
+ 166          void InitCpu(void)
+ 167          {
+ 168   1              TMOD=0x0;
+ 169   1              TH0=0;
+ 170   1              TL0=0;
+ 171   1              TR0=1;
+ 172   1              ET0=1;          
+ 173   1              EX1=1;
+ 174   1              EA=1;
+ 175   1          TCON|=0x04;
+ 176   1      }
+ 177          
+ 178          
+ 179          
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 4   
+
+ 180          /******************************画墙壁，初始化界面*******************************/
+ 181          void DrawBoard(void)
+ 182          {
+ 183   1              unsigned char n;
+ 184   1              for(n=0;n<12;n++)
+ 185   1              {
+ 186   2                      Lcd_Rectangle(3*n,0,3*n+2,2,1);   //画下边框
+ 187   2                      Lcd_Rectangle(3*n,60,3*n+2,62,1); //画上边框
+ 188   2              }
+ 189   1              for(n=0;n<20;n++)
+ 190   1              {
+ 191   2                      Lcd_Rectangle(0,3*n,2,3*n+2,1);   //画左边框
+ 192   2                      Lcd_Rectangle(33,3*n,35,3*n+2,1); //画右边框
+ 193   2              }
+ 194   1              Lcd_WriteStr(4,0,"WELCOME");  //第3列第0行
+ 195   1              Lcd_WriteStr(3,2,"Score:");        //第3列第2行
+ 196   1              Lcd_WriteStr(3,3,"Level:");        //第3列第3行
+ 197   1      }
+ 198          
+ 199          
+ 200          /***********************************
+ 201          游戏结束处理
+ 202          ************************************/
+ 203          void GameOver(void)
+ 204          {
+ 205   1              unsigned char Str[3];
+ 206   1      
+ 207   1              Str[0]=(Score/10)|0x30;   //或0x30是将数字转换为ascii码
+ 208   1              Str[1]=(Score%10)|0x30;   
+ 209   1              Str[2]=0;
+ 210   1      
+ 211   1              Lcd_Clearall();
+ 212   1      
+ 213   1              if((SysFlag&(1<<DEADFLAG))!=0)
+ 214   1              {
+ 215   2                      Lcd_WriteStr(2,2,"Score:");     
+ 216   2                      Lcd_WriteStr(5,2,Str);
+ 217   2                      Lcd_WriteStr(2,1,"You Fail");
+ 218   2              }
+ 219   1              else
+ 220   1              {
+ 221   2                      Lcd_WriteStr(2,2,"Score:");     
+ 222   2                      Lcd_WriteStr(5,2,Str);
+ 223   2                      Lcd_WriteStr(2,1,"You Pass");
+ 224   2              }
+ 225   1      }
+ 226          
+ 227          
+ 228          unsigned int code MaskTab[16]={0x0001,0x0002,0x0004,0x0008,0x0010,0x0020,0x0040,0x0080,
+ 229                                                                     0x0100,0x0200,0x0400,0x0800,0x1000,0x2000,0x4000,0x8000};
+ 230          
+ 231          
+ 232          /**********************************
+ 233          根据积木图标左下坐标X，Y来画出积木图标
+ 234          ***********************************/
+ 235          void DrawSign(struct Jimu Temp,unsigned char DrawMode)
+ 236          {
+ 237   1              unsigned char m,n;
+ 238   1              for(m=0;m<4;m++)
+ 239   1                      for(n=0;n<4;n++)        //4行4列为一个单元
+ 240   1                      {
+ 241   2                              if((Temp.dat&MaskTab[4*m+n])!=0)  //此位置应该画一个小方块
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 5   
+
+ 242   2                                      Lcd_Rectangle(Temp.x+n*3,Temp.y-2-3*m,Temp.x+n*3+2,Temp.y-3*m,DrawMode);
+ 243   2                      }
+ 244   1      }
+ 245          
+ 246          
+ 247          /********************************
+ 248          将积木图标值融入num数据中
+ 249          也即把积木图标固定，无法再下降
+ 250          也就是把到位的积木变成背景
+ 251          *********************************/
+ 252          void FixSign(void)
+ 253          {
+ 254   1              unsigned char m,n;
+ 255   1              for(m=0;m<4;m++)//行循环
+ 256   1                      for(n=0;n<4;n++)//列循环
+ 257   1                      {
+ 258   2                              if((Sign[0].dat&MaskTab[4*m+n])!=0)
+ 259   2                              {
+ 260   3                                      num[20-(Sign[0].y-2)/3+m]|=MaskTab[11-Sign[0].x/3-n];//除以3是因为最小的方块是3*3的像素
+ 261   3                                                                                                                                               //由于是以每个单元的左下角作为基准
+ 262   3                                                                                                                                               //而左下角对应m最大，n最小，所以上式+m/-n
+ 263   3                              }
+ 264   2                      }
+ 265   1      }
+ 266          
+ 267          /********************************
+ 268          判断积木图标中方块是否与障碍方块重合
+ 269          *********************************/
+ 270          unsigned char CheckIf(void)
+ 271          {
+ 272   1              unsigned char m,n;
+ 273   1              for(m=0;m<4;m++)//行循环
+ 274   1                      for(n=0;n<4;n++)//列循环
+ 275   1                      {
+ 276   2                              if((Sign[1].dat&MaskTab[4*m+n])!=0)
+ 277   2                              {
+ 278   3                                      if((num[20-(Sign[1].y-2)/3+m]&MaskTab[11-Sign[1].x/3-n])!=0)//刚下来的积木和以前的背景块重合了
+ 279   3                                              return 0;
+ 280   3                              }
+ 281   2                      }
+ 282   1              return 1;
+ 283   1      }
+ 284          
+ 285          /********************************
+ 286          判断积木图标是否可以继续下降一格
+ 287          ********************************/
+ 288          unsigned char CheckIfDown(void)
+ 289          {
+ 290   1              Sign[1]=Sign[0];//
+ 291   1              Sign[1].y+=3;//假设下降一格     
+ 292   1              return CheckIf();
+ 293   1              
+ 294   1      }
+ 295          
+ 296          /********************************
+ 297          判断积木图标是否可以向左移动
+ 298          *********************************/
+ 299          unsigned char CheckIfLeft(void)
+ 300          {
+ 301   1              Sign[1]=Sign[0];
+ 302   1              Sign[1].x-=3;   
+ 303   1              return CheckIf();
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 6   
+
+ 304   1      }
+ 305          
+ 306          /********************************
+ 307          判断积木图标是否可以向右移动
+ 308          *********************************/
+ 309          unsigned char CheckIfRight(void)
+ 310          {
+ 311   1              Sign[1]=Sign[0];
+ 312   1              Sign[1].x+=3;   
+ 313   1              return CheckIf();
+ 314   1      }
+ 315          
+ 316          /********************************
+ 317          判断是否可以旋转
+ 318          *********************************/
+ 319          unsigned char CheckIfRoll(void)
+ 320          {
+ 321   1              unsigned char i;
+ 322   1              unsigned int Temp;
+ 323   1              Sign[1]=Sign[0];
+ 324   1              if(++Sign[1].change>3)  //每个积木最多旋转4次就会复原                     
+ 325   1                      Sign[1].change=0;       //所以change=4则归零
+ 326   1              i=Sign[1].type*4+Sign[1].change;        //每种积木占四个一维数组
+ 327   1                                                                                      //根据change的值决定当前是哪个方向
+ 328   1              Temp=(unsigned int)Block[i][0]<<8;      
+ 329   1              Temp=Temp|Block[i][1];
+ 330   1              Sign[1].dat=Temp;        //先做旋转
+ 331   1              
+ 332   1              return CheckIf();        //再检查是否干涉
+ 333   1      }
+ 334          
+ 335          /********************************
+ 336          寻找满格的行并做消除处理
+ 337          最多寻找4个满行并做消除
+ 338          *********************************/
+ 339          void DelFull(void)
+ 340          {
+ 341   1              unsigned char m,n;
+ 342   1              unsigned char Temp;
+ 343   1              unsigned char Flag=0;
+ 344   1              Temp=(Sign[0].y-2)/3;
+ 345   1              if(Temp>=20)//防止越过了下边界
+ 346   1                      Temp=1;
+ 347   1              else
+ 348   1                      Temp=20-Temp; //变成最下面是第一行
+ 349   1              for(n=Temp+3;n>=Temp;n--)//积木图标的最顶行开始寻找满行比较有利于运算
+ 350   1              {
+ 351   2                      if(num[n]==0xfff)        //找到满行
+ 352   2                      {
+ 353   3                              Flag=1;                  //标志位置1
+ 354   3                              for(m=n+1;m<=19;m++) //除去外围边框
+ 355   3                              {
+ 356   4                                      num[m-1]=num[m];//把上一行的方块移到下面的一行
+ 357   4                              }
+ 358   3                              num[m]=0x801;   //上面的一行只留两侧边框
+ 359   3                              Score++;//每找到一个满行，则分数加1
+ 360   3                      }
+ 361   2              }
+ 362   1              if(Flag)//为加速而设置并判断的标志，有已固定的积木有满格消行变化则重画积木界面
+ 363   1              {
+ 364   2                      for(m=Temp;m<=19;m++)//为加速，不必要重第一行重画起，只需要从积木图标最下行开始往上的重画
+ 365   2                              for(n=1;n<=10;n++)
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 7   
+
+ 366   2                              {
+ 367   3                                      if((num[m]&MaskTab[n])==0)//如果这个地方应该等于0 读取像素却不等于0 就消去这里的矩形
+ 368   3                                      {       
+ 369   4                                              if(Lcd_ReadPixel(30-(n-1)*3,57-(m-1)*3)!=0)//为加速而做的读象素操作
+ 370   4                                              {
+ 371   5                                                      Lcd_Rectangle(30-(n-1)*3,57-(m-1)*3,30-(n-1)*3+2,57-(m-1)*3+2,0);
+ 372   5                                              }
+ 373   4                                      }
+ 374   3                                      else  //否则如果这个地方不应该等于0 读取像素却等于0 就在这里画矩形
+ 375   3                                      {
+ 376   4                                              if(Lcd_ReadPixel(30-(n-1)*3,57-(m-1)*3)==0)//为加速而做的读象素操作
+ 377   4                                              {
+ 378   5                                                      Lcd_Rectangle(30-(n-1)*3,57-(m-1)*3,30-(n-1)*3+2,57-(m-1)*3+2,1);
+ 379   5                                              }
+ 380   4                                      }
+ 381   3                              }
+ 382   2              }
+ 383   1      }
+ 384          
+ 385          
+ 386          /*******************************
+ 387          随机产生一个积木图标放到预产生区域并显示出来
+ 388          ********************************/
+ 389          void CreatSign(void)
+ 390          {
+ 391   1              unsigned char n;
+ 392   1              unsigned int Temp;
+ 393   1      
+ 394   1              DrawSign(Sign[2],0);//先清除
+ 395   1      
+ 396   1              n=Random()*28;
+ 397   1              Temp=(unsigned int)Block[n][0]<<8;
+ 398   1              Temp=Temp|Block[n][1];
+ 399   1              Sign[2].dat=Temp;
+ 400   1              Sign[2].x=45;
+ 401   1              Sign[2].y=4*3+2;
+ 402   1              Sign[2].type=n/4;
+ 403   1              Sign[2].change=n%4;
+ 404   1              DrawSign(Sign[2],1);//后画出
+ 405   1      }
+ 406          
+ 407          
+ 408          //显示当前分数
+ 409          void PrintScore(void)
+ 410          {
+ 411   1              unsigned char Str[3];
+ 412   1      //      Str[0]=3|0x30;
+ 413   1      //      Str[1]=3|0x30;
+ 414   1      //      Str[2]=3|0x30;
+ 415   1              Str[0]=(Score/10)|0x30;   //或0x30是将数字转换为ascii码
+ 416   1              Str[1]=(Score%10)|0x30;   
+ 417   1              Str[2]=0;                                 //空格对应的ascii码为0
+ 418   1              Lcd_WriteStr(6,2,Str);
+ 419   1      }
+ 420          
+ 421          
+ 422          //显示当前等级
+ 423          void PrintLevel(void)
+ 424          {
+ 425   1              unsigned char Str[3];
+ 426   1      //      Str[0]=(Level/10);
+ 427   1      //      Str[1]=(Level%10);
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 8   
+
+ 428   1              Str[0]=(Level/10)|0x30;
+ 429   1              Str[1]=(Level%10)|0x30;
+ 430   1              Str[2]=0;
+ 431   1              Lcd_WriteStr(6,3,Str);
+ 432   1      }
+ 433          
+ 434          /********************************
+ 435          游戏的具体过程，也是俄罗斯方块算法的关键部分
+ 436          *********************************/
+ 437          void GamePlay(void)
+ 438          {
+ 439   1              unsigned char m,n; 
+ 440   1              unsigned int Temp;
+ 441   1              SysFlag|=1<<NEWSIGNFLAG;//刚开始初始化为需要产生新的积木图标      sysflag=1
+ 442   1              InitRandom(TL0);        //产生随机数（TL0为定时器0的低8位，作为随机数的种子）
+ 443   1              Lcd_WriteStr(3,1,"Playing");
+ 444   1              PrintScore();
+ 445   1              PrintLevel();
+ 446   1              CreatSign();
+ 447   1              while(1)
+ 448   1              {       
+ 449   2                      if((SysFlag&(1<<NEWSIGNFLAG))==1)//判断是否需要产生新的积木图标
+ 450   2                      {
+ 451   3                              SysFlag&=~(1<<NEWSIGNFLAG);                     //sysflag=0
+ 452   3                              Sign[0]=Sign[2];        //将要出现的积木等于预产生的积木
+ 453   3                              CreatSign();            //在预产生区显示下一个积木
+ 454   3                              Sign[0].x=12;           //为刚产生的积木设置坐标
+ 455   3                              Sign[0].y=14;
+ 456   3      
+ 457   3                              for(m=0;m<4;m++)//行循环
+ 458   3                              {
+ 459   4                                      for(n=0;n<4;n++)//列循环
+ 460   4                                      {
+ 461   5                                              unsigned int what=Sign[0].dat&MaskTab[15-m*4-n];//从最高位
+ 462   5                                              if(what!=0)       //直接用与的算式判断不成功，赋值给unsigned int就好了
+ 463   5                                              {
+ 464   6                                                      upflag=1;
+ 465   6                                                      break;
+ 466   6                                      }       }
+ 467   4                                      if(n==4)
+ 468   4                                              Sign[0].y-=3;  //如果上面有空行上移一个单位
+ 469   4                                      if(upflag)                 //防止下面的空行也导致上移
+ 470   4                                      {
+ 471   5                                              break;
+ 472   5                                              upflag=1;
+ 473   5                                      }
+ 474   4      
+ 475   4                              }//将积木图标出现置顶
+ 476   3                              
+ 477   3                              for(m=0;m<4;m++)//行循环
+ 478   3                                      for(n=0;n<4;n++)//列循环
+ 479   3                                      {
+ 480   4                                              if((Sign[0].dat&MaskTab[4*m+n])!=0)     //新积木的某个坐标有方块
+ 481   4                                              {
+ 482   5                                                      if((num[20-(Sign[0].y-2)/3+m]&MaskTab[11-Sign[0].x/3-n])!=0)//且背景的相应坐标也有方块
+ 483   5                                                              SysFlag|=1<<DEADFLAG;            //则游戏失败
+ 484   5                                              }
+ 485   4                                      }
+ 486   3                              if((SysFlag&(1<<DEADFLAG))!=0)
+ 487   3                                      break;//如果产生新的积木图标中的方块与已固定好的方块重合，则死亡。游戏结束
+ 488   3                              DrawSign(Sign[0],1);    
+ 489   3                      }
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 9   
+
+ 490   2                      if((CheckIfLeft())&&(K3==0))     //左
+ 491   2                      {
+ 492   3                              DrawSign(Sign[0],0);
+ 493   3                              Sign[0].x-=3;
+ 494   3                              DrawSign(Sign[0],1);
+ 495   3                      }                         
+ 496   2                      if((CheckIfRight())&&(K4==0))     //右
+ 497   2                      {
+ 498   3                              DrawSign(Sign[0],0);
+ 499   3                              Sign[0].x+=3;
+ 500   3                              DrawSign(Sign[0],1);    
+ 501   3                      }
+ 502   2                      if((CheckIfDown())&&(K2==0))//下
+ 503   2                      {
+ 504   3                              DrawSign(Sign[0],0);
+ 505   3                              Sign[0].y+=3;
+ 506   3                              DrawSign(Sign[0],1);    
+ 507   3                      } 
+ 508   2                      if((CheckIfRoll())&&(K1==0)) //翻转
+ 509   2                      {
+ 510   3                              Delay(100);      //去抖
+ 511   3                              if((CheckIfRoll())&&(K1==0))
+ 512   3                              {       
+ 513   4                                      while(K1==0)
+ 514   4                                      {
+ 515   5                                              Delay(5000);   //防止按住up键相当于游戏暂停
+ 516   5                                              break;
+ 517   5                                      }
+ 518   4                                      DrawSign(Sign[0],0);
+ 519   4                                      if(++Sign[0].change>3)
+ 520   4                                      Sign[0].change=0;
+ 521   4                                      m=Sign[0].type*4+Sign[0].change;
+ 522   4                                      Temp=(unsigned int)Block[m][0]<<8;
+ 523   4                                      Temp=Temp|Block[m][1];
+ 524   4                                      Sign[0].dat=Temp;
+ 525   4                                      DrawSign(Sign[0],1);
+ 526   4                              }
+ 527   3                              
+ 528   3                      }
+ 529   2      //              if((SysFlag&(1<<PAUSEFLAG))!=0)
+ 530   2      //                      continue;
+ 531   2                      Delay(500);
+ 532   2      //              if(Level==1)
+ 533   2      //              {
+ 534   2      //                      Delay(500);
+ 535   2      //              }
+ 536   2      //              else if(Level==2)
+ 537   2      //              {
+ 538   2      //                      Delay(400);
+ 539   2      //              }
+ 540   2      //              else if(Level==3)
+ 541   2      //              {
+ 542   2      //                      Delay(300);
+ 543   2      //              }
+ 544   2      //              else if(Level==4)
+ 545   2      //              {
+ 546   2      //                      Delay(200);
+ 547   2      //              }
+ 548   2      //              else if(Level==5)
+ 549   2      //              {
+ 550   2      //                      Delay(100);
+ 551   2      //              }
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 10  
+
+ 552   2      //              else 
+ 553   2      //                      Delay(100);
+ 554   2                      if(++DelayCnt>=2*(11-Level))//delay计数器 等级越高需要delay次数越少 
+ 555   2                      {
+ 556   3                              DelayCnt=0;              //延时计数器清零
+ 557   3                              if(CheckIfDown())//判断是否能继续下降一格
+ 558   3                              {
+ 559   4                                      DrawSign(Sign[0],0);
+ 560   4                                      Sign[0].y+=3;
+ 561   4                                      DrawSign(Sign[0],1);  //删旧画新
+ 562   4                              }
+ 563   3                              else
+ 564   3                              {                                                 
+ 565   4                                      FixSign();              //固定
+ 566   4                                      DelFull();              //删满
+ 567   4                                      PrintScore();   //显示成绩
+ 568   4                                      if(Score>=PASSSCORE*Level)
+ 569   4                                      {
+ 570   5                                              SysFlag&=~(1<<DEADFLAG);
+ 571   5                                              Level++;
+ 572   5                                              PrintLevel();
+ 573   5                                              if(Level>5)
+ 574   5                                              {
+ 575   6                                                      break;
+ 576   6                                              }       
+ 577   5                                      //      break;//跳出玩游戏过程
+ 578   5                                      }
+ 579   4                                      SysFlag|=1<<NEWSIGNFLAG;//新的积木图标产生标志置1
+ 580   4                              }
+ 581   3                      }
+ 582   2              }
+ 583   1              
+ 584   1      }
+ 585          
+ 586          void main()
+ 587          {  
+ 588   1      //      Lcd_Clearall();//清屏   
+ 589   1      //Lcd_WriteStr(2,2,"Score:");   
+ 590   1              InitCpu();//初始化CPU
+ 591   1              Lcd_Reset(); //初始化LCD屏
+ 592   1              Lcd_Clear(0);//清屏     
+ 593   1              Lcd_Reset(); //初始化LCD屏
+ 594   1              Lcd_Clear(0);//清屏
+ 595   1              //Lcd_WriteStr(2,2,"Score:");   
+ 596   1              DrawBoard();//画界面
+ 597   1      
+ 598   1              GamePlay();//玩游戏             
+ 599   1              GameOver();//游戏结束
+ 600   1              while(1);
+ 601   1      //      Lcd_Reset(); //初始化LCD屏
+ 602   1      //      Lcd_Clear(0);//清屏             
+ 603   1              
+ 604   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3044    ----
+   CONSTANT SIZE    =    168    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     27      51
+   IDATA SIZE       =     42    ----
+C51 COMPILER V9.00   MAIN                                                                  11/12/2018 23:31:46 PAGE 11  
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

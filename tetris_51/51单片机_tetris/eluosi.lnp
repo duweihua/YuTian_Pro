@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"main.obj" 
+TO "eluosi" 
+RAMSIZE(256) 
