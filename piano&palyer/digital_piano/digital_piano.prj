@@ -1,0 +1,4 @@
+verilog work "song3.v"
+verilog work "song.v"
+verilog work "piano.v"
+verilog work "digital_piano.v"

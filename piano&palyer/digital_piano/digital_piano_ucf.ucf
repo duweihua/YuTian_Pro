@@ -1,0 +1,13 @@
+NET "inclk" 	LOC = "B8";
+
+NET "select" LOC = "N3"; 
+
+NET "out_r"  LOC = "D12";
+NET "out_l"  LOC = "C9";
+
+NET "key_in[3]" LOC = "G12"; 
+NET "key_in[2]" LOC = "C11"; 
+NET "key_in[1]" LOC = "M4"; 
+NET "key_in[0]" LOC = "A7";
+
+NET "select" CLOCK_DEDICATED_ROUTE = FALSE;

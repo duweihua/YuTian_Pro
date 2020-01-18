@@ -1,0 +1,18 @@
+//! **************************************************************************
+// Written by: Map P.20131013 on Fri Dec 27 12:17:23 2019
+//! **************************************************************************
+
+SCHEMATIC START;
+COMP "inclk" LOCATE = SITE "B8" LEVEL 1;
+COMP "out_l" LOCATE = SITE "C9" LEVEL 1;
+COMP "out_r" LOCATE = SITE "D12" LEVEL 1;
+COMP "key_in<0>" LOCATE = SITE "A7" LEVEL 1;
+COMP "key_in<1>" LOCATE = SITE "M4" LEVEL 1;
+COMP "key_in<2>" LOCATE = SITE "C11" LEVEL 1;
+COMP "key_in<3>" LOCATE = SITE "G12" LEVEL 1;
+COMP "select" LOCATE = SITE "N3" LEVEL 1;
+PIN select_pin<0> = BEL "select" PINNAME PAD;
+PIN "select_pin<0>" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "inclk_BUFGP/IBUFG" BEL "inclk_BUFGP/BUFG.GCLKMUX" USELOCALCONNECT;
+SCHEMATIC END;
+

@@ -1,0 +1,596 @@
+Release 14.7 - xst P.20131013 (nt64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+--> Parameter TMPDIR set to xst/projnav.tmp
+
+
+Total REAL time to Xst completion: 1.00 secs
+Total CPU time to Xst completion: 0.17 secs
+ 
+--> Parameter xsthdpdir set to xst
+
+
+Total REAL time to Xst completion: 1.00 secs
+Total CPU time to Xst completion: 0.17 secs
+ 
+--> Reading design: digital_piano.prj
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Compilation
+  3) Design Hierarchy Analysis
+  4) HDL Analysis
+  5) HDL Synthesis
+     5.1) HDL Synthesis Report
+  6) Advanced HDL Synthesis
+     6.1) Advanced HDL Synthesis Report
+  7) Low Level Synthesis
+  8) Partition Report
+  9) Final Report
+	9.1) Device utilization summary
+	9.2) Partition Resource Summary
+	9.3) TIMING REPORT
+
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "digital_piano.prj"
+Input Format                       : mixed
+Ignore Synthesis Constraint File   : NO
+
+---- Target Parameters
+Output File Name                   : "digital_piano"
+Output Format                      : NGC
+Target Device                      : xc3s100e-5-cp132
+
+---- Source Options
+Top Module Name                    : digital_piano
+Automatic FSM Extraction           : YES
+FSM Encoding Algorithm             : Auto
+Safe Implementation                : No
+FSM Style                          : LUT
+RAM Extraction                     : Yes
+RAM Style                          : Auto
+ROM Extraction                     : Yes
+Mux Style                          : Auto
+Decoder Extraction                 : YES
+Priority Encoder Extraction        : Yes
+Shift Register Extraction          : YES
+Logical Shifter Extraction         : YES
+XOR Collapsing                     : YES
+ROM Style                          : Auto
+Mux Extraction                     : Yes
+Resource Sharing                   : YES
+Asynchronous To Synchronous        : NO
+Multiplier Style                   : Auto
+Automatic Register Balancing       : No
+
+---- Target Options
+Add IO Buffers                     : YES
+Global Maximum Fanout              : 100000
+Add Generic Clock Buffer(BUFG)     : 24
+Register Duplication               : YES
+Slice Packing                      : YES
+Optimize Instantiated Primitives   : NO
+Use Clock Enable                   : Yes
+Use Synchronous Set                : Yes
+Use Synchronous Reset              : Yes
+Pack IO Registers into IOBs        : Auto
+Equivalent register Removal        : YES
+
+---- General Options
+Optimization Goal                  : Speed
+Optimization Effort                : 1
+Keep Hierarchy                     : No
+Netlist Hierarchy                  : As_Optimized
+RTL Output                         : Yes
+Global Optimization                : AllClockNets
+Read Cores                         : YES
+Write Timing Constraints           : NO
+Cross Clock Analysis               : NO
+Hierarchy Separator                : /
+Bus Delimiter                      : <>
+Case Specifier                     : Maintain
+Slice Utilization Ratio            : 100
+BRAM Utilization Ratio             : 100
+Verilog 2001                       : YES
+Auto BRAM Packing                  : NO
+Slice Utilization Ratio Delta      : 5
+
+=========================================================================
+
+
+=========================================================================
+*                          HDL Compilation                              *
+=========================================================================
+Compiling verilog file "song3.v" in library work
+Compiling verilog file "song.v" in library work
+Module <song3> compiled
+Compiling verilog file "piano.v" in library work
+Module <song> compiled
+Compiling verilog file "digital_piano.v" in library work
+Module <piano> compiled
+Module <digital_piano> compiled
+No errors in compilation
+Analysis of file <"digital_piano.prj"> succeeded.
+ 
+
+=========================================================================
+*                     Design Hierarchy Analysis                         *
+=========================================================================
+Analyzing hierarchy for module <digital_piano> in library <work>.
+
+Analyzing hierarchy for module <piano> in library <work>.
+
+Analyzing hierarchy for module <song> in library <work>.
+
+Analyzing hierarchy for module <song3> in library <work>.
+
+
+=========================================================================
+*                            HDL Analysis                               *
+=========================================================================
+Analyzing top module <digital_piano>.
+Module <digital_piano> is correct for synthesis.
+ 
+Analyzing module <piano> in library <work>.
+Module <piano> is correct for synthesis.
+ 
+Analyzing module <song> in library <work>.
+Module <song> is correct for synthesis.
+ 
+Analyzing module <song3> in library <work>.
+Module <song3> is correct for synthesis.
+ 
+
+=========================================================================
+*                           HDL Synthesis                               *
+=========================================================================
+
+Performing bidirectional port resolution...
+
+Synthesizing Unit <piano>.
+    Related source file is "piano.v".
+WARNING:Xst:647 - Input <inclk> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+    Found 1-bit register for signal <beep_r>.
+    Found 14-bit up counter for signal <count>.
+    Found 14-bit register for signal <origin>.
+    Summary:
+	inferred   1 Counter(s).
+	inferred  15 D-type flip-flop(s).
+Unit <piano> synthesized.
+
+
+Synthesizing Unit <song3>.
+    Related source file is "song3.v".
+    Found 1-bit register for signal <beep_r>.
+    Found 16-bit up counter for signal <count>.
+    Found 16-bit comparator equal for signal <count$cmp_eq0000> created at line 22.
+    Found 4-bit register for signal <high>.
+    Found 4-bit register for signal <low>.
+    Found 4-bit register for signal <med>.
+    Found 8-bit adder for signal <old_state_2$addsub0000> created at line 79.
+    Found 16-bit register for signal <origin>.
+    Found 8-bit register for signal <state>.
+    Summary:
+	inferred   1 Counter(s).
+	inferred  37 D-type flip-flop(s).
+	inferred   1 Adder/Subtractor(s).
+	inferred   1 Comparator(s).
+Unit <song3> synthesized.
+
+
+Synthesizing Unit <song>.
+    Related source file is "song.v".
+    Found 1-bit register for signal <clk_5Hz>.
+    Found 26-bit up counter for signal <cnt2>.
+    Found 26-bit comparator less for signal <cnt2$cmp_lt0000> created at line 29.
+    Summary:
+	inferred   1 Counter(s).
+	inferred   1 D-type flip-flop(s).
+	inferred   1 Comparator(s).
+Unit <song> synthesized.
+
+
+Synthesizing Unit <digital_piano>.
+    Related source file is "digital_piano.v".
+    Found 1-bit register for signal <clk_5MHz>.
+    Found 3-bit up counter for signal <cnt>.
+    Found 3-bit comparator less for signal <cnt$cmp_lt0000> created at line 23.
+    Summary:
+	inferred   1 Counter(s).
+	inferred   1 D-type flip-flop(s).
+	inferred   1 Comparator(s).
+Unit <digital_piano> synthesized.
+
+
+=========================================================================
+HDL Synthesis Report
+
+Macro Statistics
+# Adders/Subtractors                                   : 1
+ 8-bit adder                                           : 1
+# Counters                                             : 4
+ 14-bit up counter                                     : 1
+ 16-bit up counter                                     : 1
+ 26-bit up counter                                     : 1
+ 3-bit up counter                                      : 1
+# Registers                                            : 10
+ 1-bit register                                        : 4
+ 14-bit register                                       : 1
+ 16-bit register                                       : 1
+ 4-bit register                                        : 3
+ 8-bit register                                        : 1
+# Comparators                                          : 3
+ 16-bit comparator equal                               : 1
+ 26-bit comparator less                                : 1
+ 3-bit comparator less                                 : 1
+
+=========================================================================
+
+=========================================================================
+*                       Advanced HDL Synthesis                          *
+=========================================================================
+
+INFO:Xst:2261 - The FF/Latch <origin_2> in Unit <m1> is equivalent to the following FF/Latch, which will be removed : <origin_4> 
+INFO:Xst:2261 - The FF/Latch <origin_5> in Unit <m1> is equivalent to the following 3 FFs/Latches, which will be removed : <origin_7> <origin_11> <origin_12> 
+WARNING:Xst:1710 - FF/Latch <origin_8> (without init value) has a constant value of 0 in block <m1>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <origin_15> (without init value) has a constant value of 0 in block <m3>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <low_1> (without init value) has a constant value of 0 in block <m3>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <high_3> (without init value) has a constant value of 0 in block <m3>. This FF/Latch will be trimmed during the optimization process.
+
+=========================================================================
+Advanced HDL Synthesis Report
+
+Macro Statistics
+# Adders/Subtractors                                   : 1
+ 8-bit adder                                           : 1
+# Counters                                             : 4
+ 14-bit up counter                                     : 1
+ 16-bit up counter                                     : 1
+ 26-bit up counter                                     : 1
+ 3-bit up counter                                      : 1
+# Registers                                            : 54
+ Flip-Flops                                            : 54
+# Comparators                                          : 3
+ 16-bit comparator equal                               : 1
+ 26-bit comparator less                                : 1
+ 3-bit comparator less                                 : 1
+
+=========================================================================
+
+=========================================================================
+*                         Low Level Synthesis                           *
+=========================================================================
+WARNING:Xst:1710 - FF/Latch <origin_8> (without init value) has a constant value of 0 in block <piano>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <origin_15> (without init value) has a constant value of 0 in block <song3>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <low_1> (without init value) has a constant value of 0 in block <song3>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <high_3> (without init value) has a constant value of 0 in block <song3>. This FF/Latch will be trimmed during the optimization process.
+INFO:Xst:2261 - The FF/Latch <origin_2> in Unit <piano> is equivalent to the following FF/Latch, which will be removed : <origin_4> 
+INFO:Xst:2261 - The FF/Latch <origin_5> in Unit <piano> is equivalent to the following 3 FFs/Latches, which will be removed : <origin_7> <origin_11> <origin_12> 
+INFO:Xst:2261 - The FF/Latch <origin_1> in Unit <piano> is equivalent to the following FF/Latch, which will be removed : <origin_9> 
+
+Optimizing unit <digital_piano> ...
+
+Optimizing unit <piano> ...
+
+Optimizing unit <song3> ...
+
+Mapping all equations...
+Building and optimizing final netlist ...
+Found area constraint ratio of 100 (+ 5) on block digital_piano, actual ratio is 18.
+
+Final Macro Processing ...
+
+=========================================================================
+Final Register Report
+
+Macro Statistics
+# Registers                                            : 104
+ Flip-Flops                                            : 104
+
+=========================================================================
+
+=========================================================================
+*                           Partition Report                            *
+=========================================================================
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+=========================================================================
+*                            Final Report                               *
+=========================================================================
+Final Results
+RTL Top Level Output File Name     : digital_piano.ngr
+Top Level Output File Name         : digital_piano
+Output Format                      : NGC
+Optimization Goal                  : Speed
+Keep Hierarchy                     : No
+
+Design Statistics
+# IOs                              : 8
+
+Cell Usage :
+# BELS                             : 472
+#      GND                         : 1
+#      INV                         : 12
+#      LUT1                        : 55
+#      LUT2                        : 18
+#      LUT2_D                      : 4
+#      LUT2_L                      : 2
+#      LUT3                        : 56
+#      LUT3_D                      : 9
+#      LUT3_L                      : 6
+#      LUT4                        : 124
+#      LUT4_D                      : 15
+#      LUT4_L                      : 34
+#      MUXCY                       : 71
+#      MUXF5                       : 8
+#      VCC                         : 1
+#      XORCY                       : 56
+# FlipFlops/Latches                : 104
+#      FD                          : 1
+#      FDE                         : 35
+#      FDR                         : 53
+#      FDRS                        : 15
+# Clock Buffers                    : 3
+#      BUFG                        : 2
+#      BUFGP                       : 1
+# IO Buffers                       : 7
+#      IBUF                        : 5
+#      OBUF                        : 2
+=========================================================================
+
+Device utilization summary:
+---------------------------
+
+Selected Device : 3s100ecp132-5 
+
+ Number of Slices:                      171  out of    960    17%  
+ Number of Slice Flip Flops:            104  out of   1920     5%  
+ Number of 4 input LUTs:                335  out of   1920    17%  
+ Number of IOs:                           8
+ Number of bonded IOBs:                   8  out of     83     9%  
+ Number of GCLKs:                         3  out of     24    12%  
+
+---------------------------
+Partition Resource Summary:
+---------------------------
+
+  No Partitions were found in this design.
+
+---------------------------
+
+
+=========================================================================
+TIMING REPORT
+
+NOTE: THESE TIMING NUMBERS ARE ONLY A SYNTHESIS ESTIMATE.
+      FOR ACCURATE TIMING INFORMATION PLEASE REFER TO THE TRACE REPORT
+      GENERATED AFTER PLACE-and-ROUTE.
+
+Clock Information:
+------------------
+-----------------------------------+------------------------+-------+
+Clock Signal                       | Clock buffer(FF name)  | Load  |
+-----------------------------------+------------------------+-------+
+inclk                              | BUFGP                  | 4     |
+clk_5MHz1                          | BUFG                   | 66    |
+m1/carry(m1/carry30:O)             | NONE(*)(m1/beep_r)     | 1     |
+m2/clk_5Hz1                        | BUFG                   | 33    |
+-----------------------------------+------------------------+-------+
+(*) This 1 clock signal(s) are generated by combinatorial logic,
+and XST is not able to identify which are the primary clock signals.
+Please use the CLOCK_SIGNAL constraint to specify the clock signal(s) generated by combinatorial logic.
+INFO:Xst:2169 - HDL ADVISOR - Some clock signals were not automatically buffered by XST with BUFG/BUFR resources. Please use the buffer_type constraint in order to insert these buffers to the clock signals to help prevent skew problems.
+
+Asynchronous Control Signals Information:
+----------------------------------------
+No asynchronous control signals found in this design
+
+Timing Summary:
+---------------
+Speed Grade: -5
+
+   Minimum period: 9.195ns (Maximum Frequency: 108.751MHz)
+   Minimum input arrival time before clock: 4.300ns
+   Maximum output required time after clock: 4.063ns
+   Maximum combinational path delay: No path found
+
+Timing Detail:
+--------------
+All values displayed in nanoseconds (ns)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'inclk'
+  Clock period: 2.952ns (frequency: 338.765MHz)
+  Total number of paths / destination ports: 19 / 8
+-------------------------------------------------------------------------
+Delay:               2.952ns (Levels of Logic = 1)
+  Source:            cnt_2 (FF)
+  Destination:       cnt_0 (FF)
+  Source Clock:      inclk rising
+  Destination Clock: inclk rising
+
+  Data Path: cnt_2 to cnt_0
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDR:C->Q              2   0.514   0.532  cnt_2 (cnt_2)
+     LUT3:I0->O            4   0.612   0.499  cnt_not00011 (cnt_not0001)
+     FDR:R                     0.795          cnt_0
+    ----------------------------------------
+    Total                      2.952ns (1.921ns logic, 1.031ns route)
+                                       (65.1% logic, 34.9% route)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'clk_5MHz1'
+  Clock period: 4.675ns (frequency: 213.885MHz)
+  Total number of paths / destination ports: 1588 / 102
+-------------------------------------------------------------------------
+Delay:               4.675ns (Levels of Logic = 3)
+  Source:            m1/count_13 (FF)
+  Destination:       m1/count_13 (FF)
+  Source Clock:      clk_5MHz1 rising
+  Destination Clock: clk_5MHz1 rising
+
+  Data Path: m1/count_13 to m1/count_13
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDE:C->Q              2   0.514   0.532  m1/count_13 (m1/count_13)
+     LUT2:I0->O            1   0.612   0.509  m1/carry0 (m1/carry0)
+     LUT4:I0->O           15   0.612   1.016  m1/carry30 (m1/carry)
+     LUT3:I0->O            1   0.612   0.000  m1/Mcount_count_eqn_01 (m1/Mcount_count_eqn_0)
+     FDE:D                     0.268          m1/count_0
+    ----------------------------------------
+    Total                      4.675ns (2.618ns logic, 2.057ns route)
+                                       (56.0% logic, 44.0% route)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'm1/carry'
+  Clock period: 1.689ns (frequency: 592.084MHz)
+  Total number of paths / destination ports: 1 / 1
+-------------------------------------------------------------------------
+Delay:               1.689ns (Levels of Logic = 0)
+  Source:            m1/beep_r (FF)
+  Destination:       m1/beep_r (FF)
+  Source Clock:      m1/carry rising
+  Destination Clock: m1/carry rising
+
+  Data Path: m1/beep_r to m1/beep_r
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDR:C->Q              2   0.514   0.380  m1/beep_r (m1/beep_r)
+     FDR:R                     0.795          m1/beep_r
+    ----------------------------------------
+    Total                      1.689ns (1.309ns logic, 0.380ns route)
+                                       (77.5% logic, 22.5% route)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'm2/clk_5Hz1'
+  Clock period: 9.195ns (frequency: 108.751MHz)
+  Total number of paths / destination ports: 4799 / 48
+-------------------------------------------------------------------------
+Delay:               9.195ns (Levels of Logic = 7)
+  Source:            m2/m3/state_4 (FF)
+  Destination:       m2/m3/med_2 (FF)
+  Source Clock:      m2/clk_5Hz1 rising
+  Destination Clock: m2/clk_5Hz1 rising
+
+  Data Path: m2/m3/state_4 to m2/m3/med_2
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDE:C->Q             24   0.514   1.067  m2/m3/state_4 (m2/m3/state_4)
+     LUT4_D:I3->O          7   0.612   0.754  m2/m3/old_state_2_cmp_eq00008 (m2/m3/old_state_2_cmp_eq00008)
+     LUT2_D:I0->LO         1   0.612   0.103  m2/m3/old_state_2_cmp_eq000021 (N215)
+     LUT4:I3->O           30   0.612   1.075  m2/m3/_old_state_2<5>1 (m2/m3/_old_state_2<5>)
+     LUT4:I3->O            1   0.612   0.360  m2/m3/med_or0000511_SW0_SW0 (N28)
+     LUT4:I3->O            1   0.612   0.387  m2/m3/med_or0000511 (m2/m3/med_or000051)
+     LUT4:I2->O            2   0.612   0.383  m2/m3/med_or000069 (m2/m3/med_or0000)
+     LUT4:I3->O            1   0.612   0.000  m2/m3/med_mux0000<2> (m2/m3/med_mux0000<2>)
+     FDE:D                     0.268          m2/m3/med_1
+    ----------------------------------------
+    Total                      9.195ns (5.066ns logic, 4.129ns route)
+                                       (55.1% logic, 44.9% route)
+
+=========================================================================
+Timing constraint: Default OFFSET IN BEFORE for Clock 'clk_5MHz1'
+  Total number of paths / destination ports: 88 / 29
+-------------------------------------------------------------------------
+Offset:              3.900ns (Levels of Logic = 2)
+  Source:            key_in<1> (PAD)
+  Destination:       m1/count_13 (FF)
+  Destination Clock: clk_5MHz1 rising
+
+  Data Path: key_in<1> to m1/count_13
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUF:I->O             9   1.106   0.849  key_in_1_IBUF (key_in_1_IBUF)
+     LUT4:I0->O           14   0.612   0.850  m1/count_not00011 (m1/count_not0001)
+     FDE:CE                    0.483          m1/count_0
+    ----------------------------------------
+    Total                      3.900ns (2.201ns logic, 1.699ns route)
+                                       (56.4% logic, 43.6% route)
+
+=========================================================================
+Timing constraint: Default OFFSET IN BEFORE for Clock 'm2/clk_5Hz1'
+  Total number of paths / destination ports: 33 / 33
+-------------------------------------------------------------------------
+Offset:              4.300ns (Levels of Logic = 2)
+  Source:            select (PAD)
+  Destination:       m2/m3/origin_14 (FF)
+  Destination Clock: m2/clk_5Hz1 rising
+
+  Data Path: select to m2/m3/origin_14
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUF:I->O            19   1.106   0.922  select_IBUF (select_IBUF)
+     INV:I->O             15   0.612   0.864  m2/m3/select_inv1_INV_0 (m2/m3/select_inv)
+     FDRS:R                    0.795          m2/m3/origin_14
+    ----------------------------------------
+    Total                      4.300ns (2.513ns logic, 1.787ns route)
+                                       (58.4% logic, 41.6% route)
+
+=========================================================================
+Timing constraint: Default OFFSET OUT AFTER for Clock 'clk_5MHz1'
+  Total number of paths / destination ports: 1 / 1
+-------------------------------------------------------------------------
+Offset:              4.063ns (Levels of Logic = 1)
+  Source:            m2/m3/beep_r (FF)
+  Destination:       out_l (PAD)
+  Source Clock:      clk_5MHz1 rising
+
+  Data Path: m2/m3/beep_r to out_l
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDE:C->Q              2   0.514   0.380  m2/m3/beep_r (m2/m3/beep_r)
+     OBUF:I->O                 3.169          out_l_OBUF (out_l)
+    ----------------------------------------
+    Total                      4.063ns (3.683ns logic, 0.380ns route)
+                                       (90.6% logic, 9.4% route)
+
+=========================================================================
+Timing constraint: Default OFFSET OUT AFTER for Clock 'm1/carry'
+  Total number of paths / destination ports: 1 / 1
+-------------------------------------------------------------------------
+Offset:              4.063ns (Levels of Logic = 1)
+  Source:            m1/beep_r (FF)
+  Destination:       out_r (PAD)
+  Source Clock:      m1/carry rising
+
+  Data Path: m1/beep_r to out_r
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDR:C->Q              2   0.514   0.380  m1/beep_r (m1/beep_r)
+     OBUF:I->O                 3.169          out_r_OBUF (out_r)
+    ----------------------------------------
+    Total                      4.063ns (3.683ns logic, 0.380ns route)
+                                       (90.6% logic, 9.4% route)
+
+=========================================================================
+
+
+Total REAL time to Xst completion: 11.00 secs
+Total CPU time to Xst completion: 11.12 secs
+ 
+--> 
+
+Total memory usage is 4516860 kilobytes
+
+Number of errors   :    0 (   0 filtered)
+Number of warnings :    9 (   0 filtered)
+Number of infos    :    6 (   0 filtered)
+
